@@ -1,4 +1,9 @@
 package com.cs.os.cpuscheduler;
 
-public interface SchedulingAlgorithm {
+import javafx.util.Pair;
+import java.util.Queue;
+
+interface SchedulingAlgorithm {
+    // Method to execute the scheduling algorithm
+    Pair<Process, Float> schedule(Queue<Process> processQueue, CPU cpu);
 }

@@ -9,68 +9,69 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.Region?>
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="root">
    <children>
-      <HBox prefHeight="395.0" prefWidth="595.0">
+      <HBox layoutY="0" prefHeight="395.0" prefWidth="595.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="15">
          <children>
-            <VBox alignment="CENTER" prefHeight="395.0" prefWidth="188.0">
+            <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="15">
                <children>
-                  <Pane prefHeight="188.0" prefWidth="167.0" styleClass="pane">
+                  <!-- Process Input Section -->
+                  <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
-                        <Label layoutY="4.0" styleClass="input-label" text="Process Input" />
-                        <Label layoutY="40.0" text="Arrival Times" />
-                        <TextField fx:id="arrivalTimeInput" layoutX="1.0" layoutY="57.0" prefHeight="25.0" prefWidth="167.0" promptText="e.g. 0 2 4 8 10" />
-                        <Label layoutX="1.0" layoutY="91.0" text="Burst Times" />
-                        <TextField fx:id="burstTimeInput" layoutX="1.0" layoutY="108.0" prefHeight="25.0" prefWidth="166.0" />
-                        <Label layoutX="1.0" layoutY="149.0" text="File Input" />
-                        <Button layoutX="62.0" layoutY="145.0" mnemonicParsing="false" text="Choose File" />
+                        <Label styleClass="title" text="Process Input" />
+                        <Label styleClass="input-label" text="Arrival Times" />
+                        <TextField fx:id="arrivalTimeInput" styleClass="input-field" promptText="e.g. 0 2 4 8 10" />
+                        <Label styleClass="input-label" text="Burst Times" />
+                        <TextField fx:id="burstTimeInput" styleClass="input-field" />
+                        <Label styleClass="input-label" text="File Input" />
+                        <Button styleClass="button" text="Choose File" />
                      </children>
-                  </Pane>
-                  <Pane layoutX="10.0" layoutY="10.0" prefHeight="90.0" prefWidth="167.0">
+                  </VBox>
+                  <!-- Algorithm Section -->
+                  <VBox styleClass="pane" VBox.vgrow="NEVER" spacing="10">
                      <children>
-                        <Label layoutX="1.0" layoutY="8.0" styleClass="input-label" text="Algorithm" />
-                        <ChoiceBox fx:id="algorithmChoice" layoutX="1.0" layoutY="44.0" prefHeight="25.0" prefWidth="166.0" />
+                        <Label styleClass="title" text="Algorithm" />
+                        <ChoiceBox fx:id="algorithmChoice" styleClass="choice-box" />
                      </children>
-                  </Pane>
-                  <Pane layoutX="10.0" layoutY="207.0" prefHeight="138.0" prefWidth="167.0">
+                  </VBox>
+                  <!-- Outputs Section -->
+                  <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
-                        <Label styleClass="input-label" text="Outputs" />
-                        <Button layoutX="7.0" layoutY="34.0" mnemonicParsing="false" text="Gantt / Table View" />
-                        <Button layoutX="7.0" layoutY="63.0" mnemonicParsing="false" text="Charts View" />
-                        <Button layoutX="7.0" layoutY="92.0" mnemonicParsing="false" text="Video Simulation" />
+                        <Label styleClass="title" text="Outputs" />
+                        <Button styleClass="button" text="Gantt / Table View" />
+                        <Button styleClass="button" text="Charts View" />
+                        <Button styleClass="button" text="Video Simulation" />
                      </children>
-                  </Pane>
+                  </VBox>
                </children>
             </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="395.0" prefWidth="408.0">
+            <VBox alignment="TOP_CENTER" prefHeight="395.0" prefWidth="408.0" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" spacing="15">
                <children>
-                  <Pane prefHeight="43.0" prefWidth="429.0">
+                  <!-- View Section -->
+                  <HBox styleClass="pane" alignment="CENTER_LEFT">
                      <children>
-                        <Label layoutX="4.0" layoutY="3.0" styleClass="input-label" text="View" />
-                        <Label layoutX="310.0" layoutY="3.0" styleClass="input-label" text="Algorithm" />
+                        <Label styleClass="title" text="View" />
+                        <Region fx:id="spacer" HBox.hgrow="ALWAYS" />
+                        <Label styleClass="title" text="Algorithm" />
                      </children>
-                  </Pane>
-                  <ScrollPane>
-                     <content>
-                        <VBox prefHeight="353.0" prefWidth="429.0">
-                           <children>
-                              <TableView prefHeight="200.0" prefWidth="200.0">
-                                <columns>
-                                  <TableColumn prefWidth="33.33331298828125" text="Job" />
-                                  <TableColumn prefWidth="62.666656494140625" text="Arrival" />
-                                    <TableColumn prefWidth="71.33331298828125" text="Burst Time" />
-                                    <TableColumn prefWidth="74.00006103515625" text="Finish Time" />
-                                    <TableColumn prefWidth="78.66677856445312" text="Turnaround" />
-                                    <TableColumn prefWidth="91.99990844726562" text="Waiting Time" />
-                                </columns>
-                              </TableView>
-                           </children>
-                        </VBox>
-                     </content>
-                  </ScrollPane>
+                  </HBox>
+                  <AnchorPane VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0">
+                     <children>
+                        <TableView VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" >
+                           <columns>
+                              <TableColumn text="Job" />
+                              <TableColumn text="Arrival" />
+                              <TableColumn text="Burst Time" />
+                              <TableColumn text="Finish Time" />
+                              <TableColumn text="Turnaround" />
+                              <TableColumn text="Waiting Time" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
                </children>
             </VBox>
          </children>
