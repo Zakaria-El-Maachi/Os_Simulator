@@ -3,14 +3,12 @@ package com.cs.os.cpuscheduler;
 import javafx.util.Pair;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
 class CPUScheduler {
 
-    private float osTime = 0;
+    private int osTime = 0;
     private Queue<Process> processQueue; // Queue for storing processes
     private CPU cpu; // CPU instance to execute processes
     private SchedulingAlgorithm schedulingAlgorithm; // Placeholder for the scheduling algorithm
@@ -34,7 +32,7 @@ class CPUScheduler {
         List<Process> processList = (List<Process>) processQueue; // Convert the queue to a list for sorting
 
         // Sort the list of processes based on arrival time using List.sort
-        processList.sort((p1, p2) -> Float.compare(p1.getArrivalTime(), p2.getArrivalTime()));
+        processList.sort((p1, p2) -> Integer.compare(p1.getArrivalTime(), p2.getArrivalTime()));
 
         // Clear the queue and add sorted processes back to the queue
         processQueue.clear();
@@ -47,11 +45,11 @@ class CPUScheduler {
     public void runScheduler() {
         while(! processQueue.isEmpty()){
 
-            osTime = Float.max(osTime, processQueue.poll().getArrivalTime()); // set OsTime to the firstArrival bigger than osTime
+            osTime = Integer.max(osTime, processQueue.poll().getArrivalTime()); // set OsTime to the firstArrival bigger than osTime
 
-            Pair<Process, Float> nextProcessTime= schedulingAlgorithm.schedule(processQueue, cpu);
+            Pair<Process, Integer> nextProcessTime= schedulingAlgorithm.schedule(processQueue, cpu);
             Process nextProcess = nextProcessTime.getKey();
-            float execTime = nextProcessTime.getValue();
+            int execTime = nextProcessTime.getValue();
 
             nextProcess.addWaitingTime(osTime - nextProcess.getLastIdle()); // Add the waiting time to the process
 

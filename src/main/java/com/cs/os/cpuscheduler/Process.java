@@ -2,14 +2,14 @@ package com.cs.os.cpuscheduler;
 
 public class Process {
     private final int processID;
-    private final float burstTime;
-    private final float arrivalTime;
-    private float lastIdle;
-    private float waitingTime = 0;
-    private float executionTime = 0;
+    private final int burstTime;
+    private final int arrivalTime;
+    private int lastIdle;
+    private int waitingTime = 0;
+    private int executionTime = 0;
 
     // Constructor
-    public Process(int processID, float burstTime, float arrivalTime) {
+    public Process(int processID, int burstTime, int arrivalTime) {
         this.processID = processID;
         this.burstTime = burstTime;
         this.arrivalTime = arrivalTime;
@@ -21,42 +21,42 @@ public class Process {
         return processID;
     }
 
-    public float getBurstTime() {
+    public int getBurstTime() {
         return burstTime;
     }
 
-    public float getArrivalTime() {
+    public int getArrivalTime() {
         return arrivalTime;
     }
 
-    public float getCompletionTime() {
+    public int getCompletionTime() {
         if(executionTime == burstTime)
             return arrivalTime + burstTime + waitingTime;
         return -1;
     }
 
-    public float getLastIdle(){
+    public int getLastIdle(){
         return lastIdle;
     }
 
-    public float getTurnaround(){
+    public int getTurnaround(){
         return burstTime + waitingTime;
     }
 
-    public float getWaitingTime() {
+    public int getWaitingTime() {
         return waitingTime;
     }
-    public void addWaitingTime(float time) {
+    public void addWaitingTime(int time) {
         waitingTime += time;
     }
-    public float getExecutionTime() {
+    public int getExecutionTime() {
         return executionTime;
     }
-    public void addExecutionTime(float time) {
+    public void addExecutionTime(int time) {
         executionTime += time;
     }
 
-    public void setLastIdle(float lastIdle) {
+    public void setLastIdle(int lastIdle) {
         this.lastIdle = lastIdle;
     }
 

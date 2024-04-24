@@ -5,5 +5,5 @@ import java.util.Queue;
 
 interface SchedulingAlgorithm {
     // Method to execute the scheduling algorithm
-    Pair<Process, Float> schedule(Queue<Process> processQueue, CPU cpu);
+    Pair<Process, Integer> schedule(Queue<Process> processQueue, CPU cpu);
 }
