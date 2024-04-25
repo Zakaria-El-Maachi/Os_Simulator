@@ -27,7 +27,7 @@
                         <Label styleClass="input-label" text="Burst Times" />
                         <TextField fx:id="burstTimeInput" styleClass="input-field" />
                         <Label styleClass="input-label" text="File Input" />
-                        <Button styleClass="button" text="Choose File" />
+                        <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" />
                      </children>
                   </VBox>
                   <!-- Algorithm Section -->
@@ -41,7 +41,8 @@
                   <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
                         <Label styleClass="title" text="Outputs" />
-                        <Button styleClass="button" text="Gantt / Table View" />
+                        <Button styleClass="button" text="Table View" onAction="#onTableViewClick"/>
+                        <Button styleClass="button" text="Gantt Chart" />
                         <Button styleClass="button" text="Charts View" />
                         <Button styleClass="button" text="Video Simulation" />
                      </children>
@@ -53,21 +54,21 @@
                   <!-- View Section -->
                   <HBox styleClass="pane" alignment="CENTER_LEFT">
                      <children>
-                        <Label styleClass="title" text="View" />
-                        <Region fx:id="spacer" HBox.hgrow="ALWAYS" />
-                        <Label styleClass="title" text="Algorithm" />
+                        <Label fx:id="viewLabel" styleClass="title" text="View" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="algoLabel" styleClass="title" text="Algorithm" />
                      </children>
                   </HBox>
                   <AnchorPane VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0">
                      <children>
-                        <TableView VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" >
+                        <TableView fx:id="processTableView" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" >
                            <columns>
-                              <TableColumn text="Job" />
-                              <TableColumn text="Arrival" />
-                              <TableColumn text="Burst Time" />
-                              <TableColumn text="Finish Time" />
-                              <TableColumn text="Turnaround" />
-                              <TableColumn text="Waiting Time" />
+                              <TableColumn fx:id="jobColumn" text="Job" />
+                              <TableColumn fx:id="arrivalColumn" text="Arrival" />
+                              <TableColumn fx:id="burstColumn" text="Burst Time" />
+                              <TableColumn fx:id="finishColumn" text="Finish Time" />
+                              <TableColumn fx:id="turnaroundColumn" text="Turnaround" />
+                              <TableColumn fx:id="waitingColumn" text="Waiting Time" />
                            </columns>
                         </TableView>
                      </children>

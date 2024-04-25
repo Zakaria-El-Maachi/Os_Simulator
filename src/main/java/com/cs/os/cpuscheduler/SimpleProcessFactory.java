@@ -16,9 +16,9 @@ public class SimpleProcessFactory implements ProcessFactory{
 
     // Method to create a process with defined parameters
     @Override
-    public Process createProcess(int burstTime, int arrivalTime) {
+    public Process createProcess(int arrivalTime, int burstTime) {
         // Ensure the process ID is unique
-        return new Process(++biggestID, burstTime, arrivalTime);
+        return new Process(++biggestID, arrivalTime, burstTime);
     }
 
     // Method to create a process with random parameters
@@ -27,10 +27,10 @@ public class SimpleProcessFactory implements ProcessFactory{
         int processID = ++biggestID;
 
         // Generate random burst time and arrival time
-        int burstTime = random.nextInt(burstInterval) + 1;
         int arrivalTime = random.nextInt(lastArrival-firstArrival) + firstArrival;
+        int burstTime = random.nextInt(burstInterval) + 1;
 
-        return new Process(processID, burstTime, arrivalTime);
+        return new Process(processID, arrivalTime, burstTime);
     }
 }
 

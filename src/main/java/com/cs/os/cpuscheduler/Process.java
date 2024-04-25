@@ -9,7 +9,7 @@ public class Process {
     private int executionTime = 0;
 
     // Constructor
-    public Process(int processID, int burstTime, int arrivalTime) {
+    public Process(int processID, int arrivalTime, int burstTime) {
         this.processID = processID;
         this.burstTime = burstTime;
         this.arrivalTime = arrivalTime;
