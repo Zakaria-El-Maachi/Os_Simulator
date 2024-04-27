@@ -6,7 +6,10 @@ import java.util.Queue;
 
 public class RoundRobin implements SchedulingAlgorithm{
     @Override
-    public Pair<Process, Integer> schedule(Queue<Process> processQueue) {
+    public Pair<Process, Integer> schedule() {
         return null;
+    }
+    @Override
+    public void setUpAlgorithm(Queue<Process> processQueue) {
     }
 }

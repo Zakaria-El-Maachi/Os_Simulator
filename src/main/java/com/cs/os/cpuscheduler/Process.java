@@ -7,8 +7,16 @@ public class Process {
     private int lastIdle;
     private int waitingTime = 0;
     private int executionTime = 0;
+    private int priority = 0;
 
     // Constructor
+    public Process(int processID, int arrivalTime, int burstTime, int priority) {
+        this.processID = processID;
+        this.burstTime = burstTime;
+        this.arrivalTime = arrivalTime;
+        this.lastIdle = arrivalTime;
+        this.priority = priority;
+    }
     public Process(int processID, int arrivalTime, int burstTime) {
         this.processID = processID;
         this.burstTime = burstTime;
@@ -42,6 +50,9 @@ public class Process {
     public int getTurnaround(){
         return burstTime + waitingTime;
     }
+    public int getPriority() {
+        return this.priority;
+    }
 
     public int getWaitingTime() {
         return waitingTime;
@@ -58,6 +69,9 @@ public class Process {
 
     public void setLastIdle(int lastIdle) {
         this.lastIdle = lastIdle;
+    }
+    public void setPriority(int p) {
+        this.priority = p;
     }
 
     // Converts an integer to its corresponding representation in the alphabet.
@@ -87,11 +101,12 @@ public class Process {
     @Override
     public String toString() {
         return "Process ID: " + intToAlphabet(processID) + "\n" +
-                "Burst Time: " + burstTime + "\n" +
                 "Arrival Time: " + arrivalTime + "\n" +
+                "Burst Time: " + burstTime + "\n" +
+                "Finish Time: " + lastIdle + "\n" +
+                "Turnaround Time: " + getTurnaround() + "\n" +
                 "Waiting Time: " + waitingTime + "\n" +
-                "Execution Time: " + executionTime + "\n" +
-                "Turnaround Time: " + getTurnaround();
+                "Execution Time: " + executionTime + "\n";
     }
 
 
