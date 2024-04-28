@@ -1,11 +1,24 @@
 package com.cs.os.cpuscheduler;
 
 import javafx.beans.property.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.paint.Color;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
@@ -15,45 +28,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
-
     @FXML
-    public Label viewLabel;
+    public HBox quantumInputSection;
+    public VBox chartsView;
+    public BarChart histogramChart;
 
-    @FXML
-    public Label algoLabel;
+    @FXML // ChoiceBox for approach selection and algorithm selection
+    private ChoiceBox<String> approachChoice, algorithmChoice, preemptiveChoice, agingChoice, roundRobinChoice, outputChoiceBox;
 
-    @FXML
-    private TextField arrivalTimeInput;
+    @FXML // VBox sections for different input methods
+    private VBox normalInputSection, fileInputSection, randomProcessSection, priorityOptions;
 
-    @FXML
-    private TextField burstTimeInput;
+    @FXML // Labels for view and algorithm titles
+    public Label viewLabel, algoLabel;
 
-    @FXML
+    @FXML // Input fields for process data input
+    private TextField arrivalTimeInput, burstTimeInput, quantumField, priorityInput, ticketsInput;
+
+    @FXML // Button for choosing file input
     private Button chooseFileButton;
 
-    @FXML
-    private ChoiceBox<String> algorithmChoice;
-
+    // TableView and columns for displaying process data
     @FXML
     private TableView<Process> processTableView;
-
     @FXML
     private TableColumn<Process, String> jobColumn;
+    @FXML
+    private TableColumn<Process, Integer> arrivalColumn, burstColumn, finishColumn, turnaroundColumn, waitingColumn;
 
     @FXML
-    private TableColumn<Process, Integer> arrivalColumn;
-
+    private Canvas ganttCanvas;  // The Canvas where the Gantt Chart is drawn
     @FXML
-    private TableColumn<Process, Integer> burstColumn;
+    private ScrollPane ganttScrollPane;
 
-    @FXML
-    private TableColumn<Process, Integer> finishColumn;
-
-    @FXML
-    private TableColumn<Process, Integer> turnaroundColumn;
-
-    @FXML
-    private TableColumn<Process, Integer> waitingColumn;
 
     private CPUScheduler cpuScheduler;
     private ProcessFactory processFactory = new SimpleProcessFactory();
@@ -64,17 +71,29 @@ public class Controller {
         // Initialize CPUScheduler with a default algorithm
         cpuScheduler = new CPUScheduler(new FCFS());
 
-        // Set up the choice box for scheduling algorithms
-        algorithmChoice.setItems(FXCollections.observableArrayList(
-                "First-Come, First-Served",
-                "Shortest Job First",
-                "Round Robin"
-                // Add more algorithms as needed
-        ));
         algorithmChoice.getSelectionModel().selectFirst();
 
+        // Show the normal input section by default:
+        normalInputSection.setVisible(true);
+        normalInputSection.setManaged(true);
+        fileInputSection.setVisible(false);
+        fileInputSection.setManaged(false);
+        randomProcessSection.setVisible(false);
+        randomProcessSection.setManaged(false);
+        approachChoice.getSelectionModel().selectFirst();
+
+        quantumField.setText("1");
+        quantumInputSection.setVisible(false);
+        quantumInputSection.setManaged(false);
+        roundRobinChoice.getSelectionModel().selectFirst();
+        preemptiveChoice.getSelectionModel().selectFirst();
+        agingChoice.getSelectionModel().selectFirst();
+
+        outputChoiceBox.getSelectionModel().selectFirst();
+        onOutputChoiceChange();
+
         // Set up columns in the table view
-        jobColumn.setCellValueFactory(data -> new SimpleStringProperty(Process.intToAlphabet(data.getValue().getProcessID())));
+        jobColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getProcessName()));
         arrivalColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getArrivalTime()).asObject());
         burstColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getBurstTime()).asObject());
         finishColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getCompletionTime()).asObject());
@@ -83,6 +102,158 @@ public class Controller {
 
         // Bind the observable list to the table view
         processTableView.setItems(processList);
+    }
+
+    @FXML
+    private void onApproachChoiceChange() {
+        // Get the selected approach
+        String selectedApproach = approachChoice.getValue();
+        String selectedAlgorithm = algorithmChoice.getSelectionModel().getSelectedItem();
+
+        // Hide all input sections initially
+        normalInputSection.setVisible(false);
+        normalInputSection.setManaged(false);
+        fileInputSection.setVisible(false);
+        fileInputSection.setManaged(false);
+        randomProcessSection.setVisible(false);
+        randomProcessSection.setManaged(false);
+
+        priorityInput.setVisible(false);
+        priorityInput.setManaged(false);
+        ticketsInput.setVisible(false);
+        ticketsInput.setManaged(false);
+
+        // Show the selected approach's input section and set it to be managed
+        switch (selectedApproach) {
+            case "Normal Input":
+                normalInputSection.setVisible(true);
+                normalInputSection.setManaged(true);
+                switch (selectedAlgorithm) {
+                    case "Priority Scheduling":
+                        priorityInput.setVisible(true);
+                        priorityInput.setManaged(true);
+                        break;
+                    case "Lottery Scheduling":
+                        ticketsInput.setVisible(true);
+                        ticketsInput.setManaged(true);
+                        break;
+                }
+                break;
+            case "File Input":
+                fileInputSection.setVisible(true);
+                fileInputSection.setManaged(true);
+                break;
+            case "Random Process Generation":
+                randomProcessSection.setVisible(true);
+                randomProcessSection.setManaged(true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @FXML
+    private void onAlgorithmChoiceChange() {
+        String selectedAlgorithm = algorithmChoice.getSelectionModel().getSelectedItem();
+
+        priorityOptions.setVisible(false);
+        priorityOptions.setManaged(false);
+        quantumInputSection.setVisible(false);
+        quantumInputSection.setManaged(false);
+
+
+        // Adjust visibility based on the selected algorithm
+        switch (selectedAlgorithm){
+            case "Priority Scheduling":
+                priorityOptions.setVisible(true);
+                priorityOptions.setManaged(true);
+                onPriorityRRChoiceChange();
+                break;
+            case "Round Robin":
+                quantumInputSection.setVisible(true);
+                quantumInputSection.setManaged(true);
+                break;
+        }
+
+        onApproachChoiceChange();
+    }
+
+    @FXML
+    private void onPriorityRRChoiceChange() {
+        if (roundRobinChoice.getSelectionModel().getSelectedItem().equals("With Round Robin")) {
+            quantumInputSection.setVisible(true);
+            quantumInputSection.setManaged(true);
+        } else {
+            quantumInputSection.setVisible(false);
+            quantumInputSection.setManaged(false);
+        }
+    }
+
+
+    @FXML
+    public void displayHistogram(HashMap<String, Integer> data) {
+        // Clear the existing data from the histogram chart
+        histogramChart.getData().clear();
+
+        // Create a new data series
+        XYChart.Series<String, Integer> series = new XYChart.Series<>();
+
+        // Add data from the HashMap to the series
+        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+
+        // Add the data series to the histogram chart
+        histogramChart.getData().add(series);
+    }
+
+    @FXML
+    public void onOutputChoiceChange() {
+        // Get the selected output choice
+        String selectedChoice = outputChoiceBox.getValue();
+
+        // Hide all output views initially
+        processTableView.setVisible(false);
+        ganttScrollPane.setVisible(false);
+        chartsView.setVisible(false);
+//        videoSimulationView.setVisible(false);
+
+        // Show the selected output view and call the relevant function
+        switch (selectedChoice) {
+            case "Table View":
+                processTableView.setVisible(true);
+                break;
+            case "Gantt Chart":
+                ganttScrollPane.setVisible(true);
+                // Call the function to draw the Gantt chart if necessary
+                List<Process> processList = processTableView.getItems();
+                drawGanttChart(processList);
+                break;
+            case "Charts View":
+                chartsView.setVisible(true);
+                // Call the function to display the histogram if necessary
+//                HashMap<String, Integer> histogramData = getHistogramData(); // Assuming you have a method to get histogram data
+//                displayHistogram(histogramData);
+                break;
+//            case "Video Simulation":
+//                videoSimulationView.setVisible(true);
+//                // Implement function to display video simulation if necessary
+//                break;
+        }
+    }
+
+
+    @FXML
+    public void onTableViewClick() {
+        // Setting Up the Simpulation
+        setUpSimulation();
+        viewLabel.setText("Table View");
+
+        // Run the scheduler
+        cpuScheduler.runScheduler();
+
+        // Refresh the table view to display updated process information
+        processTableView.refresh();
     }
 
     private Pair<List<String>, List<String>> createListsFromInputs() {
@@ -200,18 +371,67 @@ public class Controller {
         algoLabel.setText(selectedAlgorithm);
 
     }
-    @FXML
-    public void onTableViewClick() {
-        // Setting Up the Simpulation
-        setUpSimulation();
-        viewLabel.setText("Table View");
 
-        // Run the scheduler
-        cpuScheduler.runScheduler();
 
-        // Refresh the table view to display updated process information
-        processTableView.refresh();
+
+    // Method to draw the Gantt Chart
+    public void drawGanttChart(List<Process> processList) {
+        GraphicsContext gc = ganttCanvas.getGraphicsContext2D();
+        double unitWidth = ganttCanvas.getWidth() / getTotalTime(processList); // Calculate the width of one unit of time
+        double rectangleHeight = ganttCanvas.getHeight() / 2;  // Height of each rectangle
+        double spacing = 2;  // Spacing between rectangles
+
+        // Map to store process colors
+        Map<String, Color> processColors = new HashMap<>();
+        Random random = new Random();
+
+        // Set a random but unique color for each process
+        for (Process process : processList) {
+            if (!processColors.containsKey(process.getProcessName())) {
+                processColors.put(process.getProcessName(), getRandomColor(random));
+            }
+        }
+
+        double currentX = 0;
+
+        // Draw each process as a rectangle
+        for (Process process : processList) {
+            Color color = processColors.get(process.getProcessName());
+            gc.setFill(color);
+
+            double processWidth = process.getExecutionTime() * unitWidth;
+            gc.fillRect(currentX, 0, processWidth, rectangleHeight);
+
+            // Draw process ID and timestamps
+            gc.setFill(Color.BLACK);
+            gc.fillText(process.getProcessName(), currentX + processWidth / 2, rectangleHeight / 4);  // Center the ID
+            gc.fillText(String.valueOf(currentX), currentX, rectangleHeight + 15);
+            gc.fillText(String.valueOf(currentX + processWidth), currentX + processWidth, rectangleHeight + 15);
+
+            // Update the x-coordinate for the next rectangle
+            currentX += processWidth + spacing;
+        }
     }
+
+    // Helper method to get total time from the list of processes
+    private double getTotalTime(List<Process> processList) {
+        double totalTime = 0;
+        for (Process process : processList) {
+            totalTime += process.getExecutionTime();
+        }
+        return totalTime;
+    }
+
+    // Helper method to get a random color
+    private Color getRandomColor(Random random) {
+        double red = random.nextDouble();
+        double green = random.nextDouble();
+        double blue = random.nextDouble();
+        return new Color(red, green, blue, 1.0);  // Random color with full opacity
+    }
+
+
+
 
     private void showError(String message) {
         Alert alert = new Alert(AlertType.ERROR);

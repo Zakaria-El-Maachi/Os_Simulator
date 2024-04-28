@@ -10,6 +10,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.XYChart?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.canvas.Canvas?>
 
 
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="root" fx:controller="com.cs.os.cpuscheduler.Controller">
@@ -18,37 +26,149 @@
          <children>
             <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="15">
                <children>
-                  <!-- Process Input Section -->
-                  <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
+
+                  <!-- Algorithm Section -->
+                  <VBox styleClass="pane" VBox.vgrow="NEVER" spacing="10">
+                     <children>
+                        <Label styleClass="title" text="Algorithm" />
+
+                        <!-- Centering the Algorithm Choice Box -->
+                        <HBox alignment="CENTER">
+                           <ChoiceBox fx:id="algorithmChoice" styleClass="choice-box" onAction="#onAlgorithmChoiceChange">
+                              <items>
+                                 <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="First-Come, First-Served" />
+                                    <String fx:value="Shortest Job First" />
+                                    <String fx:value="Shortest Time Remaining" />
+                                    <String fx:value="Round Robin" />
+                                    <String fx:value="Priority Scheduling" />
+                                    <String fx:value="Lottery Scheduling" />
+                                 </FXCollections>
+                              </items>
+                           </ChoiceBox>
+                        </HBox>
+
+                        <VBox fx:id="priorityOptions" styleClass="pane" VBox.vgrow="NEVER" spacing="10" visible="false">
+                           <!-- Preemptive Choice -->
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <Label styleClass="input-label" text="Preemptive" />
+                              <ChoiceBox fx:id="preemptiveChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="Preemptive" />
+                                       <String fx:value="Non-Preemptive" />
+                                    </FXCollections>
+                                 </items>
+                              </ChoiceBox>
+                           </HBox>
+
+                           <!-- Aging Choice -->
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <Label styleClass="input-label" text="Aging" />
+                              <ChoiceBox fx:id="agingChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="With Aging" />
+                                       <String fx:value="Without Aging" />
+                                    </FXCollections>
+                                 </items>
+                              </ChoiceBox>
+                           </HBox>
+
+                           <!-- Round Robin Choice -->
+                           <HBox spacing="10" alignment="CENTER_LEFT">
+                              <Label styleClass="input-label" text="Round Robin" />
+                              <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="With First Come, First Served" />
+                                       <String fx:value="With Round Robin" />
+                                    </FXCollections>
+                                 </items>
+                              </ChoiceBox>
+                           </HBox>
+                        </VBox>
+
+                        <!-- Quantum Input with Label -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" visible="false" fx:id="quantumInputSection">
+                           <Label styleClass="input-label" text="Quantum" />
+                           <TextField fx:id="quantumField" styleClass="input-field" promptText="Enter Quantum" />
+                        </HBox>
+                     </children>
+                  </VBox>
+
+
+                  <!-- Approach Selection -->
+                  <ChoiceBox fx:id="approachChoice" styleClass="choice-box" VBox.vgrow="NEVER" onAction="#onApproachChoiceChange">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Normal Input" />
+                           <String fx:value="File Input" />
+                           <String fx:value="Random Process Generation" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+
+                  <!-- Normal Input Section -->
+                  <VBox fx:id="normalInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
                         <Label styleClass="title" text="Process Input" />
                         <Label styleClass="input-label" text="Arrival Times" />
                         <TextField fx:id="arrivalTimeInput" styleClass="input-field" promptText="e.g. 0 2 4 8 10" />
                         <Label styleClass="input-label" text="Burst Times" />
                         <TextField fx:id="burstTimeInput" styleClass="input-field" />
-                        <Label styleClass="input-label" text="File Input" />
+
+                        <!-- Conditional Input Fields -->
+                        <Label styleClass="input-label" text="Priority" />
+                        <TextField fx:id="priorityInput" styleClass="input-field" promptText="e.g. 1 2 3 4" />
+
+                        <Label styleClass="input-label" text="Tickets" />
+                        <TextField fx:id="ticketsInput" styleClass="input-field" promptText="e.g. 5 10 15 20" />
+                     </children>
+                  </VBox>
+
+
+                  <!-- File Input Section -->
+                  <VBox fx:id="fileInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
+                     <children>
+                        <Label styleClass="title" text="File Input" />
                         <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" />
                      </children>
                   </VBox>
-                  <!-- Algorithm Section -->
-                  <VBox styleClass="pane" VBox.vgrow="NEVER" spacing="10">
+
+                  <!-- Random Process Generation Section -->
+                  <VBox fx:id="randomProcessSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
                      <children>
-                        <Label styleClass="title" text="Algorithm" />
-                        <ChoiceBox fx:id="algorithmChoice" styleClass="choice-box" />
+                        <Label styleClass="title" text="Random Process Generation" />
+                        <Label styleClass="input-label" text="Max Burst Time" />
+                        <TextField fx:id="maxBurstTimeInput" styleClass="input-field" />
+                        <Label styleClass="input-label" text="First Possible Arrival Time" />
+                        <TextField fx:id="firstArrivalInput" styleClass="input-field" />
+                        <Label styleClass="input-label" text="Last Possible Arrival Time" />
+                        <TextField fx:id="lastArrivalInput" styleClass="input-field" />
                      </children>
                   </VBox>
+
                   <!-- Outputs Section -->
                   <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
                         <Label styleClass="title" text="Outputs" />
-                        <Button styleClass="button" text="Table View" onAction="#onTableViewClick"/>
-                        <Button styleClass="button" text="Gantt Chart" />
-                        <Button styleClass="button" text="Charts View" />
-                        <Button styleClass="button" text="Video Simulation" />
+                        <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box" onAction="#onOutputChoiceChange">
+                           <items>
+                              <FXCollections fx:factory="observableArrayList">
+                                 <String fx:value="Table View" />
+                                 <String fx:value="Gantt Chart" />
+                                 <String fx:value="Charts View" />
+                                 <String fx:value="Video Simulation" />
+                              </FXCollections>
+                           </items>
+                        </ChoiceBox>
                      </children>
                   </VBox>
+
                </children>
             </VBox>
+
             <VBox alignment="TOP_CENTER" prefHeight="395.0" prefWidth="408.0" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" spacing="15">
                <children>
                   <!-- View Section -->
@@ -59,9 +179,12 @@
                         <Label fx:id="algoLabel" styleClass="title" text="Algorithm" />
                      </children>
                   </HBox>
+
+
                   <AnchorPane VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0">
                      <children>
-                        <TableView fx:id="processTableView" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" >
+                        <!-- Process Table Section -->
+                        <TableView fx:id="processTableView" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                            <columns>
                               <TableColumn fx:id="jobColumn" text="Job" />
                               <TableColumn fx:id="arrivalColumn" text="Arrival" />
@@ -71,8 +194,77 @@
                               <TableColumn fx:id="waitingColumn" text="Waiting Time" />
                            </columns>
                         </TableView>
+
+
+                        <!-- Gantt Chart Section -->
+                        <ScrollPane fx:id="ganttScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                           <content>
+                              <Canvas fx:id="ganttCanvas" styleClass="gantt-canvas" width="800" height="200" />
+                           </content>
+                        </ScrollPane>
                      </children>
+
+                     <!-- Charts View Section -->
+                     <VBox fx:id="chartsView" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
+                        <children>
+                           <BarChart fx:id="histogramChart" VBox.vgrow="ALWAYS">
+                              <xAxis>
+                                 <CategoryAxis fx:id="xAxis" label="Category" />
+                              </xAxis>
+                              <yAxis>
+                                 <NumberAxis fx:id="yAxis" label="Value" />
+                              </yAxis>
+                           </BarChart>
+                        </children>
+                     </VBox>
+
+
                   </AnchorPane>
+
+                  <!-- Metrics Section -->
+                  <HBox styleClass="pane" spacing="20" alignment="CENTER_LEFT">
+                     <children>
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Average Turnaround" />
+                           <Label fx:id="averageTurnaroundTime" styleClass="metric-value" text="0" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Average Waiting Time" />
+                           <Label fx:id="averageWaitingTime" styleClass="metric-value" text="0" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Throughput" />
+                           <Label fx:id="throughput" styleClass="metric-value" text="0" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="CPU Utilization" />
+                           <Label fx:id="cpuUtilization" styleClass="metric-value" text="0%" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Context Switches" />
+                           <Label fx:id="contextSwitches" styleClass="metric-value" text="0" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Context Switching Overhead" />
+                           <Label fx:id="contextSwitchingOverhead" styleClass="metric-value" text="0%" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Waiting Time Variance" />
+                           <Label fx:id="waitingTimeVariance" styleClass="metric-value" text="0" />
+                        </VBox>
+                        <Region styleClass="metric-separator" />
+                        <VBox styleClass="metric-box" spacing="5">
+                           <Label styleClass="metric-label" text="Max Waiting Time" />
+                           <Label fx:id="maxWaitingTime" styleClass="metric-value" text="0" />
+                        </VBox>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>

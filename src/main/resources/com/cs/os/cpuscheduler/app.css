@@ -20,7 +20,7 @@
 }
 
 /* Styling for buttons */
-.button {
+.button, .choice-box {
     -fx-padding: 6 12; /* Padding inside buttons */
     -fx-background-color: #7289da; /* Accent blue */
     -fx-text-fill: white; /* White text color */
@@ -32,12 +32,12 @@
 }
 
 /* Button hover and click animation */
-.button:hover {
+.button:hover, .choice-box:hover {
     -fx-background-color: #99aab5; /* Lighter blue on hover */
     transition: 0.3s ease-in-out;
 }
 
-.button:active {
+.button:active, .choice-box:active {
     -fx-background-color: #67788a; /* Darker blue on click */
     transition: 0.3s ease-in-out;
 }
@@ -50,17 +50,10 @@
     -fx-background-radius: 10;
     -fx-background-color: #36393f; /* Slightly darker background */
     -fx-padding: 10;
-    /*-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 1, 1, 1); /* Shadow effect */
 }
 
-/* Styling for choice box */
-.choice-box {
-    -fx-background-color: #7289da; /* Accent blue */
-    -fx-text-fill: white; /* White text color */
-    -fx-border-radius: 10;
-    -fx-padding: 2 12;
-    -fx-pref-width: 50px;
-    /*-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 3); /* Shadow effect */
+.choice-box{
+    -fx-padding: 2 15;
 }
 
 /* Style for the TableView */
@@ -69,16 +62,58 @@
     -fx-table-header-border-color: transparent; /* No border color for the header */
 }
 
-/* Style for the column headers */
-.table-view .column-header-background {
-    -fx-background-color: #36393f; /* Dark background color */
+
+/* Gantt Chart Canvas */
+.gantt-canvas {
+    background-color: #2C2F33; /* Dark background color */
 }
 
-.table-view .column-header, .table-view .column-header-text {
-    -fx-text-fill: white; /* White text color */
+
+/* Styling for the BarChart */
+#histogramChart {
+    -fx-bar-fill: #6a93d4; /* Default bar color */
+    -fx-background-color: transparent; /* Transparent background */
 }
 
-/* Set preferred width of columns to 0.0 to allow equal partitioning */
-.table-view .column {
-    -fx-pref-width: 0.0;
+/* Styling for the BarChart axes */
+#histogramChart .chart-category-axis .axis-label {
+    -fx-text-fill: white; /* Set text color to white */
+}
+
+#histogramChart .chart-number-axis .axis-label {
+    -fx-text-fill: white; /* Set text color to white */
+}
+
+/* Styling for the bars */
+.chart-bar {
+    -fx-background-color: #6a93d4; /* Bar color */
+}
+
+
+
+
+/* Styling for metric separator (vertical line) */
+.metric-separator {
+    -fx-background-color: #555; /* Dark grey line color */
+    -fx-pref-width: 1px; /* Set width for a thin vertical line */
+    -fx-max-width: 1px;
+    -fx-min-width: 1px;
+}
+
+/* Styling for metric labels */
+.metric-label {
+    -fx-text-fill: #e0e0e0; /* Light grey text color for better visibility on dark background */
+    -fx-font-size: 14px; /* Adjust font size as desired */
+    -fx-font-weight: bold; /* Make labels bold for emphasis */
+    -fx-padding: 5 0; /* Add vertical padding for separation */
+    -fx-alignment: center-left; /* Align text to the left for better readability */
+}
+
+/* Styling for metric values */
+.metric-value {
+    -fx-text-fill: #00c853; /* Bright green text color for a striking visual effect */
+    -fx-font-size: 16px; /* Adjust font size as desired */
+    -fx-font-weight: bold; /* Make values bold for emphasis */
+    -fx-padding: 5 0; /* Add vertical padding for separation */
+    -fx-alignment: center-left; /* Align text to the left for better readability */
 }

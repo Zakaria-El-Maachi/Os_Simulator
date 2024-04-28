@@ -29,6 +29,10 @@ public class Process {
         return processID;
     }
 
+    public String getProcessName() {
+        return intToAlphabet(getProcessID());
+    }
+
     public int getBurstTime() {
         return burstTime;
     }
