@@ -6,12 +6,14 @@ import java.util.*;
 
 class FCFS implements SchedulingAlgorithm {
 
-    private Iterator<Process> pIterator;
+    private int pid = 0;
+    private int numberOfProcesses;
+    private List<Process> processQueue;
 
     @Override
     public Pair<Process, Integer> schedule() {
-        if (pIterator.hasNext()) {
-            Process currentProcess = pIterator.next();
+        if (!processQueue.isEmpty() && pid < numberOfProcesses) {
+            Process currentProcess = processQueue.get(pid++);
             int executionTime = currentProcess.getBurstTime();
             return new Pair<>(currentProcess, executionTime);
         }
@@ -19,17 +21,12 @@ class FCFS implements SchedulingAlgorithm {
     }
 
     @Override
-    public void setUpAlgorithm(Queue<Process> processQueue) {
-        List<Process> processList = new ArrayList<>(processQueue); // Convert the queue to a list for sorting
-        processList.sort(Comparator.comparingInt(Process::getArrivalTime));
-        // Clear the queue and add sorted processes back to the queue
-        processQueue.clear();
-        processQueue.addAll(processList);
-
+    public void setUpAlgorithm(List<Process> processQueue) {
+        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime));
         System.out.println("Processes have been sorted by arrival time.");
-        if (!processQueue.isEmpty()) {
-            this.pIterator = processQueue.iterator();
-        }
+
+        this.processQueue = processQueue;
+        this.numberOfProcesses = processQueue.size();
     }
 
 }

@@ -10,26 +10,36 @@ public class Main {
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(2, 3, 10, 20, 1));*/
 
 
-        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(4, 3, 2, 1, 60));
-        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(2, 3, 10, 20, 1));*/
+        List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(4, 3, 2, 1, 60));
+        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(2, 3, 10, 20, 1));
 
         /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(10, 20, 30, 40));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(1, 1, 1, 1));*/
 
-        List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 4));
+        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 4));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(10, 2));;
-        List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1));
+        List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1));*/
+
+
+        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 0, 6, 11, 12));
+        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(4, 3, 7, 4, 2));;
+        List<Integer> priorities = new ArrayList<>(Arrays.asList(1, 2, 1, 3, 2));*/
+
+        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(1, 4, 6, 2, 100));
+        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(10, 15, 2, 20, 2));;
+        List<Integer> priorities = new ArrayList<>(Arrays.asList(3, 2, 1, 1, 3));*/
 
         List<Process> processes = new ArrayList<>();
         for (int i = 1; i <= arrivalTimes.size(); i++) {
-            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1), priorities.get(i-1));
+            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1));
             processes.add(process);
         }
 
         /* Uncomment to run */
-        /*FCFS algo = new FCFS();*/
+        FCFS algo = new FCFS();
         /*SJF algo = new SJF();*/
-        PrioritySchedulingNonPreemptive algo = new PrioritySchedulingNonPreemptive();
+        /*PrioritySchedulingNonPreemptive algo = new PrioritySchedulingNonPreemptive();*/
+        /*PrioritySchedulingPreemptive algo = new PrioritySchedulingPreemptive();*/
 
         CPUScheduler cs = new CPUScheduler(algo);
 

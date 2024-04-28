@@ -8,20 +8,19 @@ import static java.lang.Integer.max;
 
 class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
 
-    private PriorityQueue<Process> pq = new PriorityQueue<>(PrioritySchedulingNonPreemptive::comparePriority);
+    private PriorityQueue<Process> pq = new PriorityQueue<>(PrioritySchedulingPreemptive::compare);
     private int threshold;
     private int objectiveTime;
     private List<Process> processQueue;
-    private Iterator<Process> pIterator;
-    private int pidx;
-    private Process savedProcess;
+    private int pid;
+    private int higherPriorityPid;
     private int numberOfProcesses;
 
     public PrioritySchedulingPreemptive() {
         this.threshold = -1;
         this.objectiveTime = 0;
-        this.savedProcess = null;
-        this.pidx = 0;
+        this.pid = 0;
+        this.higherPriorityPid = 0;
         this.numberOfProcesses = 0;
     }
 
@@ -31,15 +30,19 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
             return null;
         }
 
-        if (this.threshold == -1) {
-            threshold = processQueue.get(0).getArrivalTime();
+        if (pq.isEmpty() && pid < numberOfProcesses) {
+            if (processQueue.get(pid).getArrivalTime() > threshold) {
+                threshold = processQueue.get(pid).getArrivalTime();
+                objectiveTime = processQueue.get(0).getArrivalTime();
+            }
         }
 
-        for (int i = pidx; i < numberOfProcesses; i++) {
+        for (int i = pid; i < numberOfProcesses; i++) {
             if (processQueue.get(i).getArrivalTime() <= threshold) {
                 pq.add(processQueue.get(i));
+                pid++;
             } else {
-                pidx = i;
+                pid = i;
                 break;
             }
         }
@@ -47,19 +50,23 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
         Process process = pq.peek();
 
         /* Iterate over the process queue to find the first Process (in terms of arrival time) who has a higher priority than the currently picked process */
+        higherPriorityPid = pid;
         int maxTime = -1;
-        for (int i = pidx; i < numberOfProcesses; i++) {
+        for (int i = higherPriorityPid; i < numberOfProcesses; i++) {
             if (processQueue.get(i).getPriority() < process.getPriority()) {
                 maxTime = processQueue.get(i).getArrivalTime() - objectiveTime;
+                break;
             }
         }
 
-        if (maxTime == -1 || maxTime >= process.getBurstTime()) {
-            int executionTime = process.getBurstTime() - process.getExecutionTime();
-            pq.poll();
-        }
+        int executionTime;
 
-        int executionTime = maxTime - process.getExecutionTime();
+        if (maxTime == -1 || maxTime >= process.getBurstTime()) {
+            executionTime = process.getBurstTime() - process.getExecutionTime();
+            pq.poll();
+        } else {
+            executionTime =  maxTime;
+        }
 
         objectiveTime = max(objectiveTime, process.getArrivalTime());
         threshold = objectiveTime + executionTime;
@@ -69,18 +76,19 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
     }
 
     @Override
-    public void setUpAlgorithm(Queue<Process> processQueue) {
-        List<Process> processList = new ArrayList<>(processQueue);
-        processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
+    public void setUpAlgorithm(List<Process> processQueue) {
+        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
 
-        System.out.println("Processes have been sorted by arrival time.");
+        System.out.println("Processes have been sorted by arrival time, then by priority.");
 
-        this.numberOfProcesses = processList.size();
-        this.processQueue = processList;
+        this.numberOfProcesses = processQueue.size();
+        this.processQueue = processQueue;
     }
 
-    public static int comparePriority(Process p1, Process p2) {
-        return Integer.compare(p1.getPriority(), p2.getPriority());
+    public static int compare(Process p1, Process p2) {
+        if (p1.getPriority() != p2.getPriority())
+                return p1.getPriority() - p2.getPriority();
+        return p1.getArrivalTime() - p2.getArrivalTime();
     }
 
 }

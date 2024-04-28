@@ -8,7 +8,7 @@ import java.util.*;
 class CPUScheduler {
 
     private int osTime = 0;
-    private Queue<Process> processQueue; // Queue for storing processes
+    private List<Process> processQueue; // Queue for storing processes
     private CPU cpu; // CPU instance to execute processes
     private SchedulingAlgorithm schedulingAlgorithm; // Placeholder for the scheduling algorithm
     private int toBeExecuted;
@@ -23,7 +23,7 @@ class CPUScheduler {
 
     // Method to add a process to the scheduler
     public void addProcess(Process process) {
-        processQueue.offer(process);
+        processQueue.add(process);
         this.toBeExecuted++;
         System.out.println("Process added: " + process.getProcessID());
     }
@@ -70,9 +70,10 @@ class CPUScheduler {
 
             nextProcess.setLastIdle(osTime); // Set the last Idle Time for the Process
 
-            toBeExecuted--;
+            if (nextProcess.getExecutionTime() == nextProcess.getBurstTime()) {
+                toBeExecuted--;
+            }
         }
-        System.out.println(this.processQueue.isEmpty());
     }
 
     // Method to set the scheduling algorithm
@@ -91,7 +92,7 @@ class CPUScheduler {
     }
 
     // Method to check if the process queue is empty
-    public Queue<Process> getProcessQueue() {
+    public List<Process> getProcessQueue() {
         return processQueue;
     }
 }

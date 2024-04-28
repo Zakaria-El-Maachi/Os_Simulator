@@ -11,14 +11,14 @@ class PrioritySchedulingNonPreemptive implements SchedulingAlgorithm {
     private PriorityQueue<Process> pq = new PriorityQueue<>(PrioritySchedulingNonPreemptive::comparePriority);
     private int threshold;
     private int objectiveTime;
-    private Queue<Process> processQueue;
-    private Iterator<Process> pIterator;
-    private Process savedProcess;
+    private List<Process> processQueue;
+    private int pid;
+    private int numberOfProcesses;
 
     public PrioritySchedulingNonPreemptive() {
         this.threshold = -1;
         this.objectiveTime = 0;
-        this.savedProcess = null;
+        this.pid = 0;
     }
 
     @Override
@@ -27,63 +27,39 @@ class PrioritySchedulingNonPreemptive implements SchedulingAlgorithm {
             return null;
         }
 
-        boolean skipFlag = false;
-
-        if (this.threshold == -1) {
-            threshold = processQueue.peek().getArrivalTime();
-            pIterator = processQueue.iterator();
-        }
-
-        if (savedProcess != null) {
-            if (savedProcess.getArrivalTime() <= threshold) {
-                pq.add(savedProcess);
-                savedProcess = null;
-            } else {
-                if (pq.isEmpty()) {
-                    threshold = savedProcess.getArrivalTime();
-                    pq.add(savedProcess);
-                    savedProcess = null;
-                } else {
-                    skipFlag = true;
-                }
+        if (pq.isEmpty() && pid < numberOfProcesses) {
+            if (processQueue.get(pid).getArrivalTime() > threshold) {
+                threshold = processQueue.get(pid).getArrivalTime();
+                objectiveTime = processQueue.get(0).getArrivalTime();
             }
         }
 
-        if (!skipFlag) {
-            while (pIterator.hasNext()) {
-                Process currentProcess = pIterator.next();
-                if (currentProcess.getArrivalTime() <= threshold) {
-                    pq.add(currentProcess);
-                } else {
-                    savedProcess = currentProcess;
-                    break;
-                }
+        for (int i = pid; i < numberOfProcesses; i++) {
+            if (processQueue.get(i).getArrivalTime() <= threshold) {
+                pq.add(processQueue.get(i));
+                pid++;
+            } else {
+                pid = i;
+                break;
             }
         }
 
         Process process = pq.poll();
         int executionTime = process.getBurstTime();
 
-        objectiveTime = max(objectiveTime, process.getArrivalTime());
         threshold = objectiveTime + executionTime;
-
         objectiveTime += executionTime;
-
-        /*        System.out.println("NEW THRESHOLD: " + threshold);*/
 
         return new Pair<>(process, executionTime);
     }
 
     @Override
-    public void setUpAlgorithm(Queue<Process> processQueue) {
-        List<Process> processList = new ArrayList<>(processQueue);
-        processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
-        processQueue.clear();
-        processQueue.addAll(processList);
-
-        System.out.println("Processes have been sorted by arrival time.");
+    public void setUpAlgorithm(List<Process> processQueue) {
+        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
+        System.out.println("Processes have been sorted by arrival time, then by priority.");
 
         this.processQueue = processQueue;
+        this.numberOfProcesses = processQueue.size();
     }
 
     public static int comparePriority(Process p1, Process p2) {
