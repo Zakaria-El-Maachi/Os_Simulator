@@ -2,8 +2,7 @@ package com.cs.os.cpuscheduler;
 
 import javafx.util.Pair;
 
-import java.util.Iterator;
-import java.util.Queue;
+import java.util.*;
 
 class FCFS implements SchedulingAlgorithm {
 
@@ -21,6 +20,13 @@ class FCFS implements SchedulingAlgorithm {
 
     @Override
     public void setUpAlgorithm(Queue<Process> processQueue) {
+        List<Process> processList = new ArrayList<>(processQueue); // Convert the queue to a list for sorting
+        processList.sort(Comparator.comparingInt(Process::getArrivalTime));
+        // Clear the queue and add sorted processes back to the queue
+        processQueue.clear();
+        processQueue.addAll(processList);
+
+        System.out.println("Processes have been sorted by arrival time.");
         if (!processQueue.isEmpty()) {
             this.pIterator = processQueue.iterator();
         }

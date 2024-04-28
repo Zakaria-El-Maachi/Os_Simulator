@@ -6,16 +6,16 @@ import java.util.*;
 
 import static java.lang.Integer.max;
 
-class SJF implements SchedulingAlgorithm {
+class PrioritySchedulingNonPreemptive implements SchedulingAlgorithm {
 
+    private PriorityQueue<Process> pq = new PriorityQueue<>(PrioritySchedulingNonPreemptive::comparePriority);
     private int threshold;
-    private PriorityQueue<Process> pq = new PriorityQueue<>(SJF::compareBurst);
     private int objectiveTime;
     private Queue<Process> processQueue;
     private Iterator<Process> pIterator;
     private Process savedProcess;
 
-    public SJF() {
+    public PrioritySchedulingNonPreemptive() {
         this.threshold = -1;
         this.objectiveTime = 0;
         this.savedProcess = null;
@@ -69,7 +69,7 @@ class SJF implements SchedulingAlgorithm {
 
         objectiveTime += executionTime;
 
-/*        System.out.println("NEW THRESHOLD: " + threshold);*/
+        /*        System.out.println("NEW THRESHOLD: " + threshold);*/
 
         return new Pair<>(process, executionTime);
     }
@@ -77,22 +77,17 @@ class SJF implements SchedulingAlgorithm {
     @Override
     public void setUpAlgorithm(Queue<Process> processQueue) {
         List<Process> processList = new ArrayList<>(processQueue);
-        // Sort the list of processes based on arrival time using List.sort
-        processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getBurstTime));
-        // Clear the queue and add sorted processes back to the queue
+        processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
         processQueue.clear();
         processQueue.addAll(processList);
 
         System.out.println("Processes have been sorted by arrival time.");
 
         this.processQueue = processQueue;
-        if (!processQueue.isEmpty()) {
-            this.objectiveTime = processQueue.peek().getArrivalTime();
-        }
     }
 
-    public static int compareBurst(Process p1, Process p2) {
-        return Integer.compare(p1.getBurstTime(), p2.getBurstTime());
+    public static int comparePriority(Process p1, Process p2) {
+        return Integer.compare(p1.getPriority(), p2.getPriority());
     }
 
 }

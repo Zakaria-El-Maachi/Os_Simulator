@@ -34,23 +34,23 @@ class CPUScheduler {
     }
 
     // Method to get the first Arrival Time and set the osTime
-    public void setUpScheduler() {
+/*    public void setUpScheduler() {
         List<Process> processList = new ArrayList<>(processQueue); // Convert the queue to a list for sorting
         // Sort the list of processes based on arrival time using List.sort
         processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getBurstTime));
         // Clear the queue and add sorted processes back to the queue
-        /*System.out.println(processList.size());*/
+        // System.out.println(processList.size());
         processQueue.clear();
-        /*System.out.println(processList.size());*/
+        // System.out.println(processList.size());
         processQueue.addAll(processList);
-        /*System.out.println(processList.size());*/
+        // System.out.println(processList.size());
 
         System.out.println("Processes have been sorted by arrival time.");
-    }
+    }*/
 
     // Method to run the scheduler using the current scheduling algorithm
     public void runScheduler() {
-        setUpScheduler();
+        /*setUpScheduler();*/
         this.schedulingAlgorithm.setUpAlgorithm(processQueue);
 
         while(toBeExecuted > 0){
