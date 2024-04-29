@@ -87,7 +87,7 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
 
     public static int compare(Process p1, Process p2) {
         if (p1.getPriority() != p2.getPriority())
-                return p1.getPriority() - p2.getPriority();
+            return p1.getPriority() - p2.getPriority();
         return p1.getArrivalTime() - p2.getArrivalTime();
     }
 
