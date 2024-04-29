@@ -8,6 +8,7 @@ class CPUScheduler {
 
     private int osTime = 0;
     private List<Process> processQueue; // Queue for storing processes
+    private List<Pair<Process, Integer>> executionTimeline;
     private CPU cpu; // CPU instance to execute processes
     private SchedulingAlgorithm schedulingAlgorithm; // Placeholder for the scheduling algorithm
     private int toBeExecuted, totalExecutionTime = 0;
@@ -20,11 +21,11 @@ class CPUScheduler {
     private double waitingTimeVariance;
     private double cpuUtilization;
     private int contextSwitches;
-    private double contextSwitchingOverhead;
 
     // Constructor
     public CPUScheduler(SchedulingAlgorithm schedulingAlgorithm) {
         this.processQueue = new LinkedList<>();
+        this.executionTimeline = new LinkedList<>();
         this.cpu = new CPU();
         this.schedulingAlgorithm = schedulingAlgorithm;
         this.toBeExecuted = 0;
@@ -40,7 +41,10 @@ class CPUScheduler {
     // Method to clear the process list of the CPU Scheduler
     public void clearProcesses() {
         this.processQueue.clear();
+        this.executionTimeline.clear();
         // Reset metrics
+        osTime = 0;
+        totalExecutionTime = 0;
         averageTurnaround = 0;
         throughput = 0;
         averageWaitingTime = 0;
@@ -48,7 +52,6 @@ class CPUScheduler {
         waitingTimeVariance = 0;
         cpuUtilization = 0;
         contextSwitches = 0;
-        contextSwitchingOverhead = 0;
     }
 
     // Method to run the scheduler using the current scheduling algorithm
@@ -62,10 +65,10 @@ class CPUScheduler {
         double totalServiceTime = 0;
         double totalWaitingTimeSquared = 0;
         int numProcesses = processQueue.size();
-        contextSwitches = 0; // Reset context switches
 
         while (toBeExecuted > 0) {
             Pair<Process, Integer> nextProcessTime = schedulingAlgorithm.schedule();
+            this.executionTimeline.add(nextProcessTime);
             Process nextProcess = nextProcessTime.getKey();
             int execTime = nextProcessTime.getValue();
 
@@ -74,7 +77,7 @@ class CPUScheduler {
             int waitingTime = osTime - nextProcess.getLastIdle();
             nextProcess.addWaitingTime(waitingTime); // Add the waiting time to the process
 
-            cpu.executeProcess(nextProcess, execTime); // Execute the process for the specified execTime
+//            cpu.executeProcess(nextProcess, execTime); // Execute the process for the specified execTime
 
             // Increment context switches if necessary
             if (nextProcess.getLastIdle() < osTime) {
@@ -118,8 +121,6 @@ class CPUScheduler {
         // Calculate CPU utilization
         cpuUtilization = (totalServiceTime / osTime) * 100;
 
-        // Calculate context switching overhead
-        contextSwitchingOverhead = contextSwitches / (double) osTime * 100;
     }
 
     // Method to set the scheduling algorithm
@@ -176,7 +177,8 @@ class CPUScheduler {
         return contextSwitches;
     }
 
-    public double getContextSwitchingOverhead() {
-        return contextSwitchingOverhead;
+    public List<Pair<Process, Integer>> getProcessExecutionTimeline() {
+        return this.executionTimeline;
     }
+
 }

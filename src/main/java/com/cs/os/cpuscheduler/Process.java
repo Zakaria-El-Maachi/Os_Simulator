@@ -9,6 +9,7 @@ public class Process {
     private int executionTime = 0;
     private int priority = 0;
 
+
     // Constructor
     public Process(int processID, int arrivalTime, int burstTime, int priority) {
         this.processID = processID;

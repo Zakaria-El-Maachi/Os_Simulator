@@ -19,6 +19,8 @@
 <?import javafx.scene.canvas.Canvas?>
 
 
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.skin.SplitPaneSkin.Content?>
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="root" fx:controller="com.cs.os.cpuscheduler.Controller">
    <children>
       <HBox layoutY="0" prefHeight="395.0" prefWidth="595.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="30">
@@ -76,7 +78,7 @@
 
                            <!-- Round Robin Choice -->
                            <HBox spacing="10" alignment="CENTER_LEFT">
-                              <Label styleClass="input-label" text="Round Robin" />
+                              <Label styleClass="input-label" text="Strategy" />
                               <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange">
                                  <items>
                                     <FXCollections fx:factory="observableArrayList">
@@ -131,18 +133,21 @@
                   <VBox fx:id="fileInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
                      <children>
                         <Label styleClass="title" text="File Input" />
-                        <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" />
+                        <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" onAction="#onChooseFileClick" />
+                        <!-- Add a Label to display the file path -->
+                        <Label fx:id="filePathLabel" styleClass="input-label" text="No file selected" />
                      </children>
                   </VBox>
+
 
                   <!-- Random Process Generation Section -->
                   <VBox fx:id="randomProcessSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
                      <children>
                         <Label styleClass="title" text="Random Process Generation" />
+                        <Label styleClass="input-label" text="Number Of Processes" />
+                        <TextField fx:id="numProcesses" styleClass="input-field" />
                         <Label styleClass="input-label" text="Max Burst Time" />
                         <TextField fx:id="maxBurstTimeInput" styleClass="input-field" />
-                        <Label styleClass="input-label" text="First Possible Arrival Time" />
-                        <TextField fx:id="firstArrivalInput" styleClass="input-field" />
                         <Label styleClass="input-label" text="Last Possible Arrival Time" />
                         <TextField fx:id="lastArrivalInput" styleClass="input-field" />
                      </children>
@@ -181,10 +186,10 @@
                   </HBox>
 
 
-                  <AnchorPane VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0">
+                  <AnchorPane fx:id="visualizationDiv" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0">
                      <children>
                         <!-- Process Table Section -->
-                        <TableView fx:id="processTableView" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                        <TableView fx:id="processTableView" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                            <columns>
                               <TableColumn fx:id="jobColumn" text="Job" />
                               <TableColumn fx:id="arrivalColumn" text="Arrival" />
@@ -197,69 +202,71 @@
 
 
                         <!-- Gantt Chart Section -->
-                        <ScrollPane fx:id="ganttScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="0.0" minWidth="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                           <content>
-                              <Canvas fx:id="ganttCanvas" styleClass="gantt-canvas" width="800" height="200" />
-                           </content>
-                        </ScrollPane>
+                        <Canvas fx:id="ganttCanvas" styleClass="gantt-canvas" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
+
+                        <!-- Charts View Section -->
+                        <VBox fx:id="chartsView" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
+                           <children>
+                              <BarChart fx:id="histogramChart" VBox.vgrow="ALWAYS">
+                                 <xAxis>
+                                    <CategoryAxis fx:id="xAxis" label="Category" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis fx:id="yAxis" label="Value" />
+                                 </yAxis>
+                              </BarChart>
+                           </children>
+                        </VBox>
+
                      </children>
-
-                     <!-- Charts View Section -->
-                     <VBox fx:id="chartsView" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
-                        <children>
-                           <BarChart fx:id="histogramChart" VBox.vgrow="ALWAYS">
-                              <xAxis>
-                                 <CategoryAxis fx:id="xAxis" label="Category" />
-                              </xAxis>
-                              <yAxis>
-                                 <NumberAxis fx:id="yAxis" label="Value" />
-                              </yAxis>
-                           </BarChart>
-                        </children>
-                     </VBox>
-
-
                   </AnchorPane>
 
+
                   <!-- Metrics Section -->
-                  <HBox styleClass="pane" spacing="20" alignment="CENTER_LEFT">
-                     <children>
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Average Turnaround" />
-                           <Label fx:id="averageTurnaroundTime" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Average Waiting Time" />
-                           <Label fx:id="averageWaitingTime" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Throughput" />
-                           <Label fx:id="throughput" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="CPU Utilization" />
-                           <Label fx:id="cpuUtilization" styleClass="metric-value" text="0%" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Context Switches" />
-                           <Label fx:id="contextSwitches" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Waiting Time Variance" />
-                           <Label fx:id="waitingTimeVariance" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Max Waiting Time" />
-                           <Label fx:id="maxWaitingTime" styleClass="metric-value" text="0" />
-                        </VBox>
-                     </children>
-                  </HBox>
+                  <ScrollPane fitToHeight="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                     <hbarPolicy>ALWAYS</hbarPolicy> <!-- Enable horizontal scrolling -->
+                     <vbarPolicy>NEVER</vbarPolicy> <!-- Disable vertical scrolling -->
+                     <content>
+                        <HBox styleClass="pane" spacing="20" alignment="CENTER">
+                           <children>
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Average Turnaround" />
+                                 <Label fx:id="averageTurnaroundTime" styleClass="metric-value" text="0" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Average Waiting Time" />
+                                 <Label fx:id="averageWaitingTime" styleClass="metric-value" text="0" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Throughput" />
+                                 <Label fx:id="throughput" styleClass="metric-value" text="0" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="CPU Utilization" />
+                                 <Label fx:id="cpuUtilization" styleClass="metric-value" text="0%" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Context Switches" />
+                                 <Label fx:id="contextSwitches" styleClass="metric-value" text="0" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Waiting Time Variance" />
+                                 <Label fx:id="waitingTimeVariance" styleClass="metric-value" text="0" />
+                              </VBox>
+                              <Region styleClass="metric-separator" />
+                              <VBox styleClass="metric-box" spacing="5">
+                                 <Label styleClass="metric-label" text="Max Waiting Time" />
+                                 <Label fx:id="maxWaitingTime" styleClass="metric-value" text="0" />
+                              </VBox>
+                           </children>
+                        </HBox>
+                     </content>
+                  </ScrollPane>
                </children>
             </VBox>
          </children>

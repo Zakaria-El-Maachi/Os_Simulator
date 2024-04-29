@@ -1,17 +1,19 @@
 package com.cs.os.cpuscheduler;
 
 import javafx.beans.property.*;
+import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.*;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+
+import java.io.File;
+import java.util.*;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -19,31 +21,36 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
     @FXML
     public HBox quantumInputSection;
-    public VBox chartsView;
+    @FXML
     public BarChart histogramChart;
+    public AnchorPane visualizationDiv;
 
     @FXML // ChoiceBox for approach selection and algorithm selection
     private ChoiceBox<String> approachChoice, algorithmChoice, preemptiveChoice, agingChoice, roundRobinChoice, outputChoiceBox;
 
     @FXML // VBox sections for different input methods
-    private VBox normalInputSection, fileInputSection, randomProcessSection, priorityOptions;
+    private VBox normalInputSection, fileInputSection, randomProcessSection, priorityOptions, chartsView;
 
     @FXML // Labels for view and algorithm titles
-    public Label viewLabel, algoLabel;
+    public Label viewLabel, algoLabel, filePathLabel;
+
+    @FXML
+    private Label averageTurnaroundTime, averageWaitingTime, throughput, cpuUtilization, contextSwitches, waitingTimeVariance, maxWaitingTime;
 
     @FXML // Input fields for process data input
-    private TextField arrivalTimeInput, burstTimeInput, quantumField, priorityInput, ticketsInput;
+    private TextField arrivalTimeInput, burstTimeInput, quantumField, priorityInput, ticketsInput, maxBurstTimeInput, numProcesses, lastArrivalInput;
 
     @FXML // Button for choosing file input
     private Button chooseFileButton;
@@ -58,13 +65,16 @@ public class Controller {
 
     @FXML
     private Canvas ganttCanvas;  // The Canvas where the Gantt Chart is drawn
-    @FXML
-    private ScrollPane ganttScrollPane;
 
 
     private CPUScheduler cpuScheduler = new CPUScheduler(new FCFS());
     private ProcessFactory processFactory = new SimpleProcessFactory();
     private ObservableList<Process> processList = FXCollections.observableArrayList();
+    private File selectedFile;
+
+
+    public record Triple<L, M, R>(L left, M middle, R right) {}
+
 
     @FXML
     public void initialize() {
@@ -76,10 +86,10 @@ public class Controller {
         randomProcessSection.setVisible(false);
         randomProcessSection.setManaged(false);
 
-
         quantumField.setText("1");
         quantumInputSection.setVisible(false);
         quantumInputSection.setManaged(false);
+
 
         // Set up columns in the table view
         jobColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getProcessName()));
@@ -91,6 +101,19 @@ public class Controller {
 
         // Bind the observable list to the table view
         processTableView.setItems(processList);
+
+
+        processTableView.prefWidthProperty().bind(visualizationDiv.widthProperty());
+        processTableView.prefHeightProperty().bind(visualizationDiv.heightProperty());
+        ganttCanvas.widthProperty().bind(visualizationDiv.widthProperty());
+        ganttCanvas.heightProperty().bind(visualizationDiv.heightProperty());
+        chartsView.prefWidthProperty().bind(visualizationDiv.widthProperty());
+        chartsView.prefHeightProperty().bind(visualizationDiv.heightProperty());
+
+        processTableView.setVisible(false);
+        ganttCanvas.setVisible(false);
+        chartsView.setVisible(false);
+
     }
 
     @FXML
@@ -138,8 +161,6 @@ public class Controller {
                 randomProcessSection.setVisible(true);
                 randomProcessSection.setManaged(true);
                 break;
-            default:
-                break;
         }
     }
 
@@ -171,6 +192,8 @@ public class Controller {
 
     @FXML
     private void onPriorityRRChoiceChange() {
+        if(roundRobinChoice.getValue() == null)
+            roundRobinChoice.setValue("With First Come, First Served");
         if (roundRobinChoice.getValue().equals("With Round Robin")) {
             quantumInputSection.setVisible(true);
             quantumInputSection.setManaged(true);
@@ -200,30 +223,28 @@ public class Controller {
 
     @FXML
     public void onOutputChoiceChange() {
-        // Set up the simulation
-//        setUpSimulation();
+        setUpSimulation(); // Set up the simulation
+        cpuScheduler.runScheduler(); // Run the scheduler
 
-        // Get the selected output choice
-        String selectedChoice = outputChoiceBox.getValue();
+        updateMetrics();
+
+        String selectedChoice = outputChoiceBox.getValue(); // Get the selected output choice
 
         // Hide all output views initially
         processTableView.setVisible(false);
-        ganttScrollPane.setVisible(false);
+        ganttCanvas.setVisible(false);
         chartsView.setVisible(false);
 //        videoSimulationView.setVisible(false);
-
+        viewLabel.setText(selectedChoice);
         // Show the selected output view and call the relevant function
         switch (selectedChoice) {
             case "Table View":
                 processTableView.setVisible(true);
-                setUpSimulation();
-                onTableViewClick();
+                processTableView.refresh(); // Refresh the table view to display updated process information
                 break;
             case "Gantt Chart":
-                ganttScrollPane.setVisible(true);
-                // Call the function to draw the Gantt chart if necessary
-                List<Process> processList = processTableView.getItems();
-                drawGanttChart(processList);
+                ganttCanvas.setVisible(true);
+                drawGanttChart(cpuScheduler.getProcessExecutionTimeline()); // Call the function to draw the Gantt chart if necessary
                 break;
             case "Charts View":
                 chartsView.setVisible(true);
@@ -238,73 +259,121 @@ public class Controller {
         }
     }
 
+    @FXML
+    // Event handler for the "Choose File" button
+    private void onChooseFileClick(ActionEvent event) {
+        // Create a new FileChooser instance
+        FileChooser fileChooser = new FileChooser();
 
-    public void onTableViewClick() {
-        // Setting Up the Simpulation
-        viewLabel.setText("Table View");
+        // Optional: Set file filters, initial directory, or initial file name
+        fileChooser.setTitle("Open Process Definition File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Files", "*.*"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
 
-        // Run the scheduler
-        cpuScheduler.runScheduler();
+        // Get the stage (parent window) from the event source
+        Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
 
-        // Refresh the table view to display updated process information
-        processTableView.refresh();
+        // Show the file chooser and get the selected file
+        selectedFile = fileChooser.showOpenDialog(stage);
+        // Update the file path label if a file is selected
+        if (selectedFile != null) {
+            filePathLabel.setText("Selected file: " + selectedFile.getPath());
+        } else {
+            filePathLabel.setText("No file selected");
+        }
     }
 
-    private Pair<List<String>, List<String>> createListsFromInputs() {
+    private void createListsFromInputs(List<String> arrivalTimes, List<String> burstTimes, List<String> priority) {
+        // Clear the existing lists
+        arrivalTimes.clear();
+        burstTimes.clear();
+        priority.clear();
 
-        // Split inputs and add them to the lists
-        List<String> arrivalTimes = new ArrayList<>(List.of(arrivalTimeInput.getText().split("\\s+")));
-        List<String> burstTimes = new ArrayList<>(List.of(burstTimeInput.getText().split("\\s+")));
-
-        return new Pair<>(arrivalTimes, burstTimes);
+        // Split inputs and add them to the existing lists
+        Collections.addAll(arrivalTimes, arrivalTimeInput.getText().split("\\s+"));
+        Collections.addAll(burstTimes, burstTimeInput.getText().split("\\s+"));
+        Collections.addAll(priority, priorityInput.getText().split("\\s+"));
     }
 
-    private Pair<List<String>, List<String>> createListsFromFile(String filePath) throws IOException {
-        List<String> arrivalTimes;
-        List<String> burstTimes;
+    private void createListsFromFile(String filePath, List<String> arrivalTimes, List<String> burstTimes, List<String> priority) throws IOException {
+        // Clear the existing lists
+        arrivalTimes.clear();
+        burstTimes.clear();
+        priority.clear();
 
         // Create a BufferedReader to read the file
-        BufferedReader reader = new BufferedReader(new FileReader(filePath));
-
-        // Read the first line for arrival times
-        String line = reader.readLine();
-        if (line != null) {
-            // Split the line and add to the list
-            arrivalTimes = new ArrayList<>(List.of(line.split("\\s+")));
-        } else throw new IOException();
-
-        // Read the second line for burst times
-        line = reader.readLine();
-        if (line != null) {
-            // Split the line and add to the list
-            burstTimes = new ArrayList<>(List.of(line.split("\\s+")));
-        } else throw new IOException();
-
-        return new Pair<>(arrivalTimes, burstTimes);
-    }
-
-    private Pair<List<Integer>, List<Integer>> createProcessInfo(String filePath) {
-        List<String> arrivalTimesStrings;
-        List<String> burstTimesStrings;
-
-        try {
-            // Determine source of data
-            if (filePath != null && !filePath.isEmpty()) {
-                // Use file input
-                Pair<List<String>, List<String>> listsFromFile = createListsFromFile(filePath);
-                arrivalTimesStrings = listsFromFile.getKey();
-                burstTimesStrings = listsFromFile.getValue();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            // Read the first line for arrival times
+            String line = reader.readLine();
+            if (line != null) {
+                // Split the line and add to the existing list
+                Collections.addAll(arrivalTimes, line.split("\\s+"));
             } else {
-                // Use user input
-                Pair<List<String>, List<String>> listsFromInputs = createListsFromInputs();
-                arrivalTimesStrings = listsFromInputs.getKey();
-                burstTimesStrings = listsFromInputs.getValue();
+                throw new IOException("Missing arrival times in file.");
             }
 
-            // Convert string lists to integer lists
+            // Read the second line for burst times
+            line = reader.readLine();
+            if (line != null) {
+                // Split the line and add to the existing list
+                Collections.addAll(burstTimes, line.split("\\s+"));
+            } else {
+                throw new IOException("Missing burst times in file.");
+            }
+
+            // Read the third line for priorities (if present)
+            line = reader.readLine();
+            if (line != null) {
+                // Split the line and add to the existing list
+                Collections.addAll(priority, line.split("\\s+"));
+            } else {
+                // If the priority line is missing, set the priority list to null
+                priority.clear();
+            }
+        }
+    }
+
+    private Triple<List<Integer>, List<Integer>, List<Integer>> createProcessInfo(File file, boolean usePriority) {
+        // Variables to store the inputs as strings
+        List<String> arrivalTimesStrings = new ArrayList<>();
+        List<String> burstTimesStrings = new ArrayList<>();
+        List<String> priorityStrings = new ArrayList<>();
+
+        // Get the selected approach
+        String selectedApproach = approachChoice.getValue();
+
+        try {
+            // Determine the source of data based on the selected approach
+            switch (selectedApproach) {
+                case "Normal Input":
+                    // Use user input
+                    createListsFromInputs(arrivalTimesStrings, burstTimesStrings, priorityStrings);
+                    break;
+                case "File Input":
+                    // Use file input
+                    if (file != null && !file.getPath().isEmpty()) {
+                        createListsFromFile(file.getPath(), arrivalTimesStrings, burstTimesStrings, priorityStrings);
+                    } else {
+                        showError("No file selected for File Input approach.");
+                        return null;
+                    }
+                    break;
+                case "Random Process Generation":
+                    break;
+                default:
+                    showError("Invalid approach selected.");
+                    return null;
+            }
+
+            // Convert the string lists to integer lists
             List<Integer> arrivalTimes = new ArrayList<>();
             List<Integer> burstTimes = new ArrayList<>();
+            List<Integer> priorities = new ArrayList<>();
 
+            // Check for mismatched lengths
             if (arrivalTimesStrings.size() != burstTimesStrings.size()) {
                 showError("Mismatch in arrival and burst times length.");
                 return null;
@@ -319,7 +388,25 @@ public class Controller {
                 burstTimes.add(burstTime);
             }
 
-            return new Pair<>(arrivalTimes, burstTimes);
+            // Handle priority list based on whether priority scheduling is being used
+            if (usePriority) {
+                // Check for mismatched lengths if priority scheduling is used
+                if (arrivalTimesStrings.size() != priorityStrings.size()) {
+                    showError("Mismatch in arrival and priority times length.");
+                    return null;
+                }
+
+                // Convert priority strings to integers
+                for (String priorityString : priorityStrings) {
+                    priorities.add(Integer.parseInt(priorityString));
+                }
+            } else {
+                // Set all priorities to 1 if priority scheduling is not used
+                priorities = Collections.nCopies(arrivalTimes.size(), 1);
+            }
+
+            // Return the Triple with the processed lists
+            return new Triple<>(arrivalTimes, burstTimes, priorities);
 
         } catch (IOException e) {
             showError("An error occurred while reading the file. Please check the file path.");
@@ -328,29 +415,22 @@ public class Controller {
         } catch (IllegalArgumentException e) {
             showError(e.getMessage());
         }
-
-        // Return null if there is an error
         return null;
     }
 
     private void setUpSimulation(){
-        Pair<List<Integer>, List<Integer>> processInfos = createProcessInfo(null);
-        List<Integer> arrivalTimes = processInfos.getKey();
-        List<Integer> burstTimes = processInfos.getValue();
+        boolean priorityEnabled = false;
 
         processList.clear();
         cpuScheduler.clearProcesses();
-
-        for(int i = 0; i < processInfos.getKey().size(); i++){
-            Process p = processFactory.createProcess(arrivalTimes.get(i), burstTimes.get(i));
-            processList.add(p);
-            cpuScheduler.addProcess(p);
-        }
+        processFactory.reset();
 
         // Get the selected algorithm from the choice box
         String selectedAlgorithm = algorithmChoice.getValue();
+        String selectedApproach = approachChoice.getValue();
         String selectedPreemption = preemptiveChoice.getValue();
         String selectedRR = roundRobinChoice.getValue();
+        int quantum = Integer.parseInt(quantumField.getText());
         SchedulingAlgorithm algo = new FCFS();
 
         // Set the scheduling algorithm based on the selected value
@@ -359,80 +439,156 @@ public class Controller {
                 algo = new SJF();
                 break;
             case "Round Robin":
-                algo = new RoundRobin(1);
+                algo = new RoundRobin(quantum);
                 break;
             case "Shortest Time Remaining":
-//                cpuScheduler.setSchedulingAlgorithm(new STR());
+//                algo = new STR();
                 break;
             case "Priority Scheduling":
-                if(selectedRR.equals("With Round Robin"))
-//                    algo = new RRPriorityScheduling();
+                priorityEnabled = true;
+                if(selectedRR.equals("With Round Robin")){
+                    algo = new RRPriorityScheduling(quantum);
                     break;
+                }
                 else if(selectedPreemption.equals("Preemptive"))
                     algo = new PrioritySchedulingPreemptive();
                 else
                     algo = new PrioritySchedulingNonPreemptive();
                 break;
             case "Lottery Scheduling":
-//                cpuScheduler.setSchedulingAlgorithm(new Lottery());
+//                algo = new Lottery();
                 break;
         }
+
         cpuScheduler.setSchedulingAlgorithm(algo);
         algoLabel.setText(selectedAlgorithm);
 
+        if(selectedApproach.equals("Random Process Generation")){
+            int numberProcesses = Integer.parseInt(numProcesses.getText());
+            int lastArrival = Integer.parseInt(lastArrivalInput.getText());
+            int bursttime = Integer.parseInt(maxBurstTimeInput.getText());
+
+            for(int i = 0; i < numberProcesses; i++){
+                Process p = processFactory.createRandomProcess(lastArrival, bursttime, numberProcesses);
+                processList.add(p);
+                cpuScheduler.addProcess(p);
+            }
+            return;
+        }
+
+        // Get the process information (arrival times, burst times, and priorities) from createProcessInfo method
+        Triple<List<Integer>, List<Integer>, List<Integer>> processInfos = createProcessInfo(selectedFile, priorityEnabled);
+
+        // Extract arrival times, burst times, and priorities from the returned triple
+        List<Integer> arrivalTimes = processInfos.left();
+        List<Integer> burstTimes = processInfos.middle();
+        List<Integer> priorities = processInfos.right();
+
+
+        for(int i = 0; i < arrivalTimes.size(); i++){
+            Process p = processFactory.createProcess(arrivalTimes.get(i), burstTimes.get(i), priorities.get(i));
+            processList.add(p);
+            cpuScheduler.addProcess(p);
+        }
+
+
     }
 
-
+    // Method to update metrics
+    private void updateMetrics() {
+        averageTurnaroundTime.setText(String.format("%.2f", cpuScheduler.getAverageTurnaround()));
+        averageWaitingTime.setText(String.format("%.2f", cpuScheduler.getAverageWaitingTime()));
+        throughput.setText(String.format("%.2f", cpuScheduler.getThroughput()));
+        cpuUtilization.setText(String.format("%.2f%%", cpuScheduler.getCpuUtilization()));
+        contextSwitches.setText(String.valueOf(cpuScheduler.getContextSwitches()));
+        waitingTimeVariance.setText(String.format("%.2f", cpuScheduler.getWaitingTimeVariance()));
+        maxWaitingTime.setText(String.valueOf(cpuScheduler.getMaxWaitingTime()));
+    }
 
     // Method to draw the Gantt Chart
-    public void drawGanttChart(List<Process> processList) {
+    private void drawGanttChart(List<Pair<Process, Integer>> processList) {
         GraphicsContext gc = ganttCanvas.getGraphicsContext2D();
-        double unitWidth = ganttCanvas.getWidth() / cpuScheduler.getTotalExecutionTime(); // Calculate the width of one unit of time
-        double rectangleHeight = ganttCanvas.getHeight() / 2;  // Height of each rectangle
-        double spacing = 2;  // Spacing between rectangles
+        gc.clearRect(0, 0, ganttCanvas.getWidth(), ganttCanvas.getHeight()); // Clear the entire canvas
+
+        double totalExecutionTime = cpuScheduler.getTotalExecutionTime();
+        double unitWidth = ganttCanvas.getWidth() / totalExecutionTime; // Calculate the width of one unit of time
+        double rectangleHeight = ganttCanvas.getHeight() / 12; // Adjust height of each rectangle to be smaller
+        double rowSpacing = 16; // Spacing between rows
+        double columnSpacing = 27;
+        double cornerRadius = 10; // Corner radius for rounded rectangles
+        int osTime = 0;
+        double currentX = 0;
+        double currentY = 0; // Start at the top of the canvas
+        int currentRow = 0; // Keep track of current row
 
         // Map to store process colors
         Map<String, Color> processColors = new HashMap<>();
         Random random = new Random();
 
         // Set a random but unique color for each process
-        for (Process process : processList) {
-            if (!processColors.containsKey(process.getProcessName())) {
-                processColors.put(process.getProcessName(), getRandomColor(random));
+        for (Pair<Process, Integer> execution : processList) {
+            if (!processColors.containsKey(execution.getKey().getProcessName())) {
+                processColors.put(execution.getKey().getProcessName(), getRandomColor(random));
             }
         }
 
-        double currentX = 0;
-
         // Draw each process as a rectangle
-        for (Process process : processList) {
+        for (int i = 0; i < processList.size(); i++) {
+            Pair<Process, Integer> execution = processList.get(i);
+            Process process = execution.getKey();
+            int executionTime = execution.getValue();
             Color color = processColors.get(process.getProcessName());
-            gc.setFill(color);
+            double processWidth = executionTime * unitWidth;
 
-            double processWidth = process.getExecutionTime() * unitWidth;
-            gc.fillRect(currentX, 0, processWidth, rectangleHeight);
+            // Check if current rectangle exceeds canvas width
+            if (currentX + processWidth > ganttCanvas.getWidth()) {
+                currentX = 0; // Reset currentX to wrap
+                currentRow++; // Move to the next row
+                currentY = currentRow * (rectangleHeight + columnSpacing); // Calculate new y-coordinate
+            }
 
-            // Draw process ID and timestamps
+            // Draw the process rectangle with rounded corners and gradient fill
+            gc.setFill(createGradientFill(color, currentX, currentY, processWidth, rectangleHeight));
+            gc.fillRoundRect(currentX, currentY, processWidth, rectangleHeight, cornerRadius, cornerRadius);
+
+            // Draw process ID inside the rectangle
             gc.setFill(Color.BLACK);
-            gc.fillText(process.getProcessName(), currentX + processWidth / 2, rectangleHeight / 4);  // Center the ID
-            gc.fillText(String.valueOf(currentX), currentX, rectangleHeight + 15);
-            gc.fillText(String.valueOf(currentX + processWidth), currentX + processWidth, rectangleHeight + 15);
+            double processTextY = currentY + rectangleHeight / 2 + 4; // Positioning in the center of the rectangle
+            gc.fillText(process.getProcessName(), currentX + processWidth / 2, processTextY);
 
-            // Update the x-coordinate for the next rectangle
-            currentX += processWidth + spacing;
+            // Draw osTime timestamp
+            if (i == 0) {
+                // For the first timestamp, draw it at the start of the chart
+                gc.fillText(String.valueOf(osTime), currentX, currentY + rectangleHeight + 20);
+            } else {
+                // Calculate the center of the gap between rectangles
+                gc.fillText(String.valueOf(osTime), currentX - rowSpacing/2 - 2, currentY + rectangleHeight + 20);
+            }
+
+            // Update osTime and currentX for the next rectangle
+            osTime += executionTime;
+            currentX += processWidth + rowSpacing;
         }
+
+        // Draw the final osTime timestamp at the end of the chart
+        gc.fillText(String.valueOf(osTime), currentX, currentY + rectangleHeight + 20); // Final osTime timestamp
+
     }
 
-    // Helper method to get a random color
+
+    // Method to create a gradient fill for the rectangles
+    private Paint createGradientFill(Color baseColor, double startX, double startY, double width, double height) {
+        Stop[] stops = new Stop[]{
+                new Stop(0, baseColor.darker()), // Darker color at the start
+                new Stop(1, baseColor) // Lighter color at the end
+        };
+        return new LinearGradient(startX, startY, startX + width, startY, false, CycleMethod.NO_CYCLE, stops);
+    }
+
     private Color getRandomColor(Random random) {
-        double red = random.nextDouble();
-        double green = random.nextDouble();
-        double blue = random.nextDouble();
-        return new Color(red, green, blue, 1.0);  // Random color with full opacity
+        // Generate a random color with a specified range for each RGB value
+        return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
-
-
-
 
     private void showError(String message) {
         Alert alert = new Alert(AlertType.ERROR);
