@@ -15,16 +15,15 @@
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.XYChart?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.canvas.Canvas?>
 
 
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" styleClass="root" fx:controller="com.cs.os.cpuscheduler.Controller">
    <children>
-      <HBox layoutY="0" prefHeight="395.0" prefWidth="595.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="15">
+      <HBox layoutY="0" prefHeight="395.0" prefWidth="595.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="30">
          <children>
-            <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="15">
+            <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="30">
                <children>
 
                   <!-- Algorithm Section -->
@@ -153,7 +152,7 @@
                   <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                      <children>
                         <Label styleClass="title" text="Outputs" />
-                        <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box" onAction="#onOutputChoiceChange">
+                        <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box">
                            <items>
                               <FXCollections fx:factory="observableArrayList">
                                  <String fx:value="Table View" />
@@ -163,6 +162,7 @@
                               </FXCollections>
                            </items>
                         </ChoiceBox>
+                        <Button fx:id="startSimulation" styleClass="button" text="Show" onAction="#onOutputChoiceChange" />
                      </children>
                   </VBox>
 
@@ -247,11 +247,6 @@
                         <VBox styleClass="metric-box" spacing="5">
                            <Label styleClass="metric-label" text="Context Switches" />
                            <Label fx:id="contextSwitches" styleClass="metric-value" text="0" />
-                        </VBox>
-                        <Region styleClass="metric-separator" />
-                        <VBox styleClass="metric-box" spacing="5">
-                           <Label styleClass="metric-label" text="Context Switching Overhead" />
-                           <Label fx:id="contextSwitchingOverhead" styleClass="metric-value" text="0%" />
                         </VBox>
                         <Region styleClass="metric-separator" />
                         <VBox styleClass="metric-box" spacing="5">

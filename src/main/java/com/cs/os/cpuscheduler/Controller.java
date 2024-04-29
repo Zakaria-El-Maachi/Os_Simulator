@@ -62,35 +62,24 @@ public class Controller {
     private ScrollPane ganttScrollPane;
 
 
-    private CPUScheduler cpuScheduler;
+    private CPUScheduler cpuScheduler = new CPUScheduler(new FCFS());
     private ProcessFactory processFactory = new SimpleProcessFactory();
     private ObservableList<Process> processList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        // Initialize CPUScheduler with a default algorithm
-        cpuScheduler = new CPUScheduler(new FCFS());
 
-        algorithmChoice.getSelectionModel().selectFirst();
-
-        // Show the normal input section by default:
-        normalInputSection.setVisible(true);
-        normalInputSection.setManaged(true);
+        normalInputSection.setVisible(false);
+        normalInputSection.setManaged(false);
         fileInputSection.setVisible(false);
         fileInputSection.setManaged(false);
         randomProcessSection.setVisible(false);
         randomProcessSection.setManaged(false);
-        approachChoice.getSelectionModel().selectFirst();
+
 
         quantumField.setText("1");
         quantumInputSection.setVisible(false);
         quantumInputSection.setManaged(false);
-        roundRobinChoice.getSelectionModel().selectFirst();
-        preemptiveChoice.getSelectionModel().selectFirst();
-        agingChoice.getSelectionModel().selectFirst();
-
-        outputChoiceBox.getSelectionModel().selectFirst();
-        onOutputChoiceChange();
 
         // Set up columns in the table view
         jobColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getProcessName()));
@@ -108,7 +97,7 @@ public class Controller {
     private void onApproachChoiceChange() {
         // Get the selected approach
         String selectedApproach = approachChoice.getValue();
-        String selectedAlgorithm = algorithmChoice.getSelectionModel().getSelectedItem();
+        String selectedAlgorithm = algorithmChoice.getValue();
 
         // Hide all input sections initially
         normalInputSection.setVisible(false);
@@ -123,6 +112,8 @@ public class Controller {
         ticketsInput.setVisible(false);
         ticketsInput.setManaged(false);
 
+        if(selectedApproach == null)
+            selectedApproach = "Normal Input";
         // Show the selected approach's input section and set it to be managed
         switch (selectedApproach) {
             case "Normal Input":
@@ -154,7 +145,7 @@ public class Controller {
 
     @FXML
     private void onAlgorithmChoiceChange() {
-        String selectedAlgorithm = algorithmChoice.getSelectionModel().getSelectedItem();
+        String selectedAlgorithm = algorithmChoice.getValue();
 
         priorityOptions.setVisible(false);
         priorityOptions.setManaged(false);
@@ -180,7 +171,7 @@ public class Controller {
 
     @FXML
     private void onPriorityRRChoiceChange() {
-        if (roundRobinChoice.getSelectionModel().getSelectedItem().equals("With Round Robin")) {
+        if (roundRobinChoice.getValue().equals("With Round Robin")) {
             quantumInputSection.setVisible(true);
             quantumInputSection.setManaged(true);
         } else {
@@ -209,6 +200,9 @@ public class Controller {
 
     @FXML
     public void onOutputChoiceChange() {
+        // Set up the simulation
+//        setUpSimulation();
+
         // Get the selected output choice
         String selectedChoice = outputChoiceBox.getValue();
 
@@ -222,6 +216,8 @@ public class Controller {
         switch (selectedChoice) {
             case "Table View":
                 processTableView.setVisible(true);
+                setUpSimulation();
+                onTableViewClick();
                 break;
             case "Gantt Chart":
                 ganttScrollPane.setVisible(true);
@@ -243,10 +239,8 @@ public class Controller {
     }
 
 
-    @FXML
     public void onTableViewClick() {
         // Setting Up the Simpulation
-        setUpSimulation();
         viewLabel.setText("Table View");
 
         // Run the scheduler
@@ -340,7 +334,7 @@ public class Controller {
     }
 
     private void setUpSimulation(){
-        Pair<List<Integer>, List<Integer>> processInfos = createProcessInfo("");
+        Pair<List<Integer>, List<Integer>> processInfos = createProcessInfo(null);
         List<Integer> arrivalTimes = processInfos.getKey();
         List<Integer> burstTimes = processInfos.getValue();
 
@@ -355,19 +349,35 @@ public class Controller {
 
         // Get the selected algorithm from the choice box
         String selectedAlgorithm = algorithmChoice.getValue();
+        String selectedPreemption = preemptiveChoice.getValue();
+        String selectedRR = roundRobinChoice.getValue();
+        SchedulingAlgorithm algo = new FCFS();
 
         // Set the scheduling algorithm based on the selected value
         switch (selectedAlgorithm) {
             case "Shortest Job First":
-                cpuScheduler.setSchedulingAlgorithm(new SJF());
+                algo = new SJF();
                 break;
             case "Round Robin":
-                cpuScheduler.setSchedulingAlgorithm(new RoundRobin());
+                algo = new RoundRobin(1);
                 break;
-            default:
-                cpuScheduler.setSchedulingAlgorithm(new FCFS());
+            case "Shortest Time Remaining":
+//                cpuScheduler.setSchedulingAlgorithm(new STR());
+                break;
+            case "Priority Scheduling":
+                if(selectedRR.equals("With Round Robin"))
+//                    algo = new RRPriorityScheduling();
+                    break;
+                else if(selectedPreemption.equals("Preemptive"))
+                    algo = new PrioritySchedulingPreemptive();
+                else
+                    algo = new PrioritySchedulingNonPreemptive();
+                break;
+            case "Lottery Scheduling":
+//                cpuScheduler.setSchedulingAlgorithm(new Lottery());
                 break;
         }
+        cpuScheduler.setSchedulingAlgorithm(algo);
         algoLabel.setText(selectedAlgorithm);
 
     }
@@ -377,7 +387,7 @@ public class Controller {
     // Method to draw the Gantt Chart
     public void drawGanttChart(List<Process> processList) {
         GraphicsContext gc = ganttCanvas.getGraphicsContext2D();
-        double unitWidth = ganttCanvas.getWidth() / getTotalTime(processList); // Calculate the width of one unit of time
+        double unitWidth = ganttCanvas.getWidth() / cpuScheduler.getTotalExecutionTime(); // Calculate the width of one unit of time
         double rectangleHeight = ganttCanvas.getHeight() / 2;  // Height of each rectangle
         double spacing = 2;  // Spacing between rectangles
 
@@ -411,15 +421,6 @@ public class Controller {
             // Update the x-coordinate for the next rectangle
             currentX += processWidth + spacing;
         }
-    }
-
-    // Helper method to get total time from the list of processes
-    private double getTotalTime(List<Process> processList) {
-        double totalTime = 0;
-        for (Process process : processList) {
-            totalTime += process.getExecutionTime();
-        }
-        return totalTime;
     }
 
     // Helper method to get a random color

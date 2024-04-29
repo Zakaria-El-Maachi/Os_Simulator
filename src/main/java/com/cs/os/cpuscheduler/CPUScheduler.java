@@ -4,14 +4,23 @@ import javafx.util.Pair;
 
 import java.util.*;
 
-
 class CPUScheduler {
 
     private int osTime = 0;
     private List<Process> processQueue; // Queue for storing processes
     private CPU cpu; // CPU instance to execute processes
     private SchedulingAlgorithm schedulingAlgorithm; // Placeholder for the scheduling algorithm
-    private int toBeExecuted;
+    private int toBeExecuted, totalExecutionTime = 0;
+
+    // New properties to store performance metrics
+    private double averageTurnaround;
+    private double throughput;
+    private double averageWaitingTime;
+    private int maxWaitingTime;
+    private double waitingTimeVariance;
+    private double cpuUtilization;
+    private int contextSwitches;
+    private double contextSwitchingOverhead;
 
     // Constructor
     public CPUScheduler(SchedulingAlgorithm schedulingAlgorithm) {
@@ -29,51 +38,88 @@ class CPUScheduler {
     }
 
     // Method to clear the process list of the CPU Scheduler
-    public void clearProcesses(){
+    public void clearProcesses() {
         this.processQueue.clear();
+        // Reset metrics
+        averageTurnaround = 0;
+        throughput = 0;
+        averageWaitingTime = 0;
+        maxWaitingTime = 0;
+        waitingTimeVariance = 0;
+        cpuUtilization = 0;
+        contextSwitches = 0;
+        contextSwitchingOverhead = 0;
     }
-
-    // Method to get the first Arrival Time and set the osTime
-/*    public void setUpScheduler() {
-        List<Process> processList = new ArrayList<>(processQueue); // Convert the queue to a list for sorting
-        // Sort the list of processes based on arrival time using List.sort
-        processList.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getBurstTime));
-        // Clear the queue and add sorted processes back to the queue
-        // System.out.println(processList.size());
-        processQueue.clear();
-        // System.out.println(processList.size());
-        processQueue.addAll(processList);
-        // System.out.println(processList.size());
-
-        System.out.println("Processes have been sorted by arrival time.");
-    }*/
 
     // Method to run the scheduler using the current scheduling algorithm
     public void runScheduler() {
-        /*setUpScheduler();*/
+        // Set up the scheduling algorithm
         this.schedulingAlgorithm.setUpAlgorithm(processQueue);
 
-        while(toBeExecuted > 0){
+        // Variables to calculate performance metrics
+        double totalTurnaroundTime = 0;
+        double totalWaitingTime = 0;
+        double totalServiceTime = 0;
+        double totalWaitingTimeSquared = 0;
+        int numProcesses = processQueue.size();
+        contextSwitches = 0; // Reset context switches
 
+        while (toBeExecuted > 0) {
             Pair<Process, Integer> nextProcessTime = schedulingAlgorithm.schedule();
             Process nextProcess = nextProcessTime.getKey();
             int execTime = nextProcessTime.getValue();
 
             osTime = Integer.max(osTime, nextProcess.getArrivalTime());
 
-            nextProcess.addWaitingTime(osTime - nextProcess.getLastIdle()); // Add the waiting time to the process
+            int waitingTime = osTime - nextProcess.getLastIdle();
+            nextProcess.addWaitingTime(waitingTime); // Add the waiting time to the process
 
-            cpu.executeProcess(nextProcess, execTime); // Execute the Process for that execTime
+            cpu.executeProcess(nextProcess, execTime); // Execute the process for the specified execTime
 
-            osTime += execTime; // Add execTime to both the osTime and Process
+            // Increment context switches if necessary
+            if (nextProcess.getLastIdle() < osTime) {
+                contextSwitches++;
+            }
+
+            osTime += execTime; // Update osTime based on execTime
             nextProcess.addExecutionTime(execTime);
 
-            nextProcess.setLastIdle(osTime); // Set the last Idle Time for the Process
+            nextProcess.setLastIdle(osTime); // Update the last idle time for the process
 
             if (nextProcess.getExecutionTime() == nextProcess.getBurstTime()) {
+                // Calculate metrics
+                totalExecutionTime += nextProcess.getExecutionTime();
+                totalTurnaroundTime += osTime - nextProcess.getArrivalTime();
+                totalWaitingTime += nextProcess.getWaitingTime();
+                totalServiceTime += nextProcess.getExecutionTime();
+                totalWaitingTimeSquared += Math.pow(nextProcess.getWaitingTime(), 2);
+
+                // Calculate max waiting time
+                if (nextProcess.getWaitingTime() > maxWaitingTime) {
+                    maxWaitingTime = nextProcess.getWaitingTime();
+                }
+
                 toBeExecuted--;
             }
         }
+
+        // Calculate average turnaround time
+        averageTurnaround = totalTurnaroundTime / numProcesses;
+
+        // Calculate throughput
+        throughput = numProcesses / (double) osTime;
+
+        // Calculate average waiting time
+        averageWaitingTime = totalWaitingTime / numProcesses;
+
+        // Calculate waiting time variance
+        waitingTimeVariance = (totalWaitingTimeSquared / numProcesses) - Math.pow(averageWaitingTime, 2);
+
+        // Calculate CPU utilization
+        cpuUtilization = (totalServiceTime / osTime) * 100;
+
+        // Calculate context switching overhead
+        contextSwitchingOverhead = contextSwitches / (double) osTime * 100;
     }
 
     // Method to set the scheduling algorithm
@@ -91,10 +137,46 @@ class CPUScheduler {
         return processQueue.isEmpty();
     }
 
-    // Method to check if the process queue is empty
+    // Method to get the process queue
     public List<Process> getProcessQueue() {
         return processQueue;
     }
+
+    // Getters for performance metrics
+
+    public int getTotalExecutionTime() {
+        return totalExecutionTime;
+    }
+
+    public double getAverageTurnaround() {
+        return averageTurnaround;
+    }
+
+    public double getThroughput() {
+        return throughput;
+    }
+
+    public double getAverageWaitingTime() {
+        return averageWaitingTime;
+    }
+
+    public int getMaxWaitingTime() {
+        return maxWaitingTime;
+    }
+
+    public double getWaitingTimeVariance() {
+        return waitingTimeVariance;
+    }
+
+    public double getCpuUtilization() {
+        return cpuUtilization;
+    }
+
+    public int getContextSwitches() {
+        return contextSwitches;
+    }
+
+    public double getContextSwitchingOverhead() {
+        return contextSwitchingOverhead;
+    }
 }
-
-
