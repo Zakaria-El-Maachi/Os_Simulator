@@ -25,155 +25,160 @@
    <children>
       <HBox layoutY="0" prefHeight="395.0" prefWidth="595.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="30">
          <children>
-            <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="30">
-               <children>
-
-                  <!-- Algorithm Section -->
-                  <VBox styleClass="pane" VBox.vgrow="NEVER" spacing="10">
+            <ScrollPane fitToHeight="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+               <hbarPolicy>NEVER</hbarPolicy> <!-- Enable horizontal scrolling -->
+               <vbarPolicy>ALWAYS</vbarPolicy> <!-- Disable vertical scrolling -->
+               <content>
+                  <VBox alignment="CENTER" prefHeight="395.0" prefWidth="300.0" VBox.vgrow="ALWAYS" spacing="30">
                      <children>
-                        <Label styleClass="title" text="Algorithm" />
 
-                        <!-- Centering the Algorithm Choice Box -->
-                        <HBox alignment="CENTER">
-                           <ChoiceBox fx:id="algorithmChoice" styleClass="choice-box" onAction="#onAlgorithmChoiceChange">
-                              <items>
-                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="First-Come, First-Served" />
-                                    <String fx:value="Shortest Job First" />
-                                    <String fx:value="Shortest Time Remaining" />
-                                    <String fx:value="Round Robin" />
-                                    <String fx:value="Priority Scheduling" />
-                                    <String fx:value="Lottery Scheduling" />
-                                 </FXCollections>
-                              </items>
-                           </ChoiceBox>
-                        </HBox>
+                        <!-- Algorithm Section -->
+                        <VBox styleClass="pane" VBox.vgrow="NEVER" spacing="10">
+                           <children>
+                              <Label styleClass="title" text="Algorithm" />
 
-                        <VBox fx:id="priorityOptions" styleClass="pane" VBox.vgrow="NEVER" spacing="10" visible="false">
-                           <!-- Preemptive Choice -->
-                           <HBox spacing="10" alignment="CENTER_LEFT">
-                              <Label styleClass="input-label" text="Preemptive" />
-                              <ChoiceBox fx:id="preemptiveChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
-                                 <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="Preemptive" />
-                                       <String fx:value="Non-Preemptive" />
-                                    </FXCollections>
-                                 </items>
-                              </ChoiceBox>
-                           </HBox>
+                              <!-- Centering the Algorithm Choice Box -->
+                              <HBox alignment="CENTER">
+                                 <ChoiceBox fx:id="algorithmChoice" styleClass="choice-box" onAction="#onAlgorithmChoiceChange">
+                                    <items>
+                                       <FXCollections fx:factory="observableArrayList">
+                                          <String fx:value="First-Come, First-Served" />
+                                          <String fx:value="Shortest Job First" />
+                                          <String fx:value="Shortest Time Remaining" />
+                                          <String fx:value="Round Robin" />
+                                          <String fx:value="Priority Scheduling" />
+                                          <String fx:value="Lottery Scheduling" />
+                                       </FXCollections>
+                                    </items>
+                                 </ChoiceBox>
+                              </HBox>
 
-                           <!-- Aging Choice -->
-                           <HBox spacing="10" alignment="CENTER_LEFT">
-                              <Label styleClass="input-label" text="Aging" />
-                              <ChoiceBox fx:id="agingChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
-                                 <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="With Aging" />
-                                       <String fx:value="Without Aging" />
-                                    </FXCollections>
-                                 </items>
-                              </ChoiceBox>
-                           </HBox>
+                              <VBox fx:id="priorityOptions" styleClass="pane" VBox.vgrow="NEVER" spacing="10" visible="false">
+                                 <!-- Preemptive Choice -->
+                                 <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label styleClass="input-label" text="Preemptive" />
+                                    <ChoiceBox fx:id="preemptiveChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
+                                       <items>
+                                          <FXCollections fx:factory="observableArrayList">
+                                             <String fx:value="Preemptive" />
+                                             <String fx:value="Non-Preemptive" />
+                                          </FXCollections>
+                                       </items>
+                                    </ChoiceBox>
+                                 </HBox>
 
-                           <!-- Round Robin Choice -->
-                           <HBox spacing="10" alignment="CENTER_LEFT">
-                              <Label styleClass="input-label" text="Strategy" />
-                              <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange">
-                                 <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="With First Come, First Served" />
-                                       <String fx:value="With Round Robin" />
-                                    </FXCollections>
-                                 </items>
-                              </ChoiceBox>
-                           </HBox>
+                                 <!-- Aging Choice -->
+                                 <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label styleClass="input-label" text="Aging" />
+                                    <ChoiceBox fx:id="agingChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
+                                       <items>
+                                          <FXCollections fx:factory="observableArrayList">
+                                             <String fx:value="With Aging" />
+                                             <String fx:value="Without Aging" />
+                                          </FXCollections>
+                                       </items>
+                                    </ChoiceBox>
+                                 </HBox>
+
+                                 <!-- Round Robin Choice -->
+                                 <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label styleClass="input-label" text="Strategy" />
+                                    <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange">
+                                       <items>
+                                          <FXCollections fx:factory="observableArrayList">
+                                             <String fx:value="With First Come, First Served" />
+                                             <String fx:value="With Round Robin" />
+                                          </FXCollections>
+                                       </items>
+                                    </ChoiceBox>
+                                 </HBox>
+                              </VBox>
+
+                              <!-- Quantum Input with Label -->
+                              <HBox spacing="10" alignment="CENTER_LEFT" visible="false" fx:id="quantumInputSection">
+                                 <Label styleClass="input-label" text="Quantum" />
+                                 <TextField fx:id="quantumField" styleClass="input-field" promptText="Enter Quantum" />
+                              </HBox>
+                           </children>
                         </VBox>
 
-                        <!-- Quantum Input with Label -->
-                        <HBox spacing="10" alignment="CENTER_LEFT" visible="false" fx:id="quantumInputSection">
-                           <Label styleClass="input-label" text="Quantum" />
-                           <TextField fx:id="quantumField" styleClass="input-field" promptText="Enter Quantum" />
-                        </HBox>
-                     </children>
-                  </VBox>
 
-
-                  <!-- Approach Selection -->
-                  <ChoiceBox fx:id="approachChoice" styleClass="choice-box" VBox.vgrow="NEVER" onAction="#onApproachChoiceChange">
-                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="Normal Input" />
-                           <String fx:value="File Input" />
-                           <String fx:value="Random Process Generation" />
-                        </FXCollections>
-                     </items>
-                  </ChoiceBox>
-
-                  <!-- Normal Input Section -->
-                  <VBox fx:id="normalInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
-                     <children>
-                        <Label styleClass="title" text="Process Input" />
-                        <Label styleClass="input-label" text="Arrival Times" />
-                        <TextField fx:id="arrivalTimeInput" styleClass="input-field" promptText="e.g. 0 2 4 8 10" />
-                        <Label styleClass="input-label" text="Burst Times" />
-                        <TextField fx:id="burstTimeInput" styleClass="input-field" />
-
-                        <!-- Conditional Input Fields -->
-                        <Label styleClass="input-label" text="Priority" />
-                        <TextField fx:id="priorityInput" styleClass="input-field" promptText="e.g. 1 2 3 4" />
-
-                        <Label styleClass="input-label" text="Tickets" />
-                        <TextField fx:id="ticketsInput" styleClass="input-field" promptText="e.g. 5 10 15 20" />
-                     </children>
-                  </VBox>
-
-
-                  <!-- File Input Section -->
-                  <VBox fx:id="fileInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
-                     <children>
-                        <Label styleClass="title" text="File Input" />
-                        <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" onAction="#onChooseFileClick" />
-                        <!-- Add a Label to display the file path -->
-                        <Label fx:id="filePathLabel" styleClass="input-label" text="No file selected" />
-                     </children>
-                  </VBox>
-
-
-                  <!-- Random Process Generation Section -->
-                  <VBox fx:id="randomProcessSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
-                     <children>
-                        <Label styleClass="title" text="Random Process Generation" />
-                        <Label styleClass="input-label" text="Number Of Processes" />
-                        <TextField fx:id="numProcesses" styleClass="input-field" />
-                        <Label styleClass="input-label" text="Max Burst Time" />
-                        <TextField fx:id="maxBurstTimeInput" styleClass="input-field" />
-                        <Label styleClass="input-label" text="Last Possible Arrival Time" />
-                        <TextField fx:id="lastArrivalInput" styleClass="input-field" />
-                     </children>
-                  </VBox>
-
-                  <!-- Outputs Section -->
-                  <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
-                     <children>
-                        <Label styleClass="title" text="Outputs" />
-                        <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box">
+                        <!-- Approach Selection -->
+                        <ChoiceBox fx:id="approachChoice" styleClass="choice-box" VBox.vgrow="NEVER" onAction="#onApproachChoiceChange">
                            <items>
                               <FXCollections fx:factory="observableArrayList">
-                                 <String fx:value="Table View" />
-                                 <String fx:value="Gantt Chart" />
-                                 <String fx:value="Charts View" />
-                                 <String fx:value="Video Simulation" />
+                                 <String fx:value="Normal Input" />
+                                 <String fx:value="File Input" />
+                                 <String fx:value="Random Process Generation" />
                               </FXCollections>
                            </items>
                         </ChoiceBox>
-                        <Button fx:id="startSimulation" styleClass="button" text="Show" onAction="#onOutputChoiceChange" />
+
+                        <!-- Normal Input Section -->
+                        <VBox fx:id="normalInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
+                           <children>
+                              <Label styleClass="title" text="Process Input" />
+                              <Label styleClass="input-label" text="Arrival Times" />
+                              <TextField fx:id="arrivalTimeInput" styleClass="input-field" promptText="e.g. 0 2 4 8 10" />
+                              <Label styleClass="input-label" text="Burst Times" />
+                              <TextField fx:id="burstTimeInput" styleClass="input-field" />
+
+                              <!-- Conditional Input Fields -->
+                              <Label styleClass="input-label" text="Priority" />
+                              <TextField fx:id="priorityInput" styleClass="input-field" promptText="e.g. 1 2 3 4" />
+
+                              <Label styleClass="input-label" text="Tickets" />
+                              <TextField fx:id="ticketsInput" styleClass="input-field" promptText="e.g. 5 10 15 20" />
+                           </children>
+                        </VBox>
+
+
+                        <!-- File Input Section -->
+                        <VBox fx:id="fileInputSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
+                           <children>
+                              <Label styleClass="title" text="File Input" />
+                              <Button fx:id="chooseFileButton" styleClass="button" text="Choose File" onAction="#onChooseFileClick" />
+                              <!-- Add a Label to display the file path -->
+                              <Label fx:id="filePathLabel" styleClass="input-label" text="No file selected" />
+                           </children>
+                        </VBox>
+
+
+                        <!-- Random Process Generation Section -->
+                        <VBox fx:id="randomProcessSection" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
+                           <children>
+                              <Label styleClass="title" text="Random Process Generation" />
+                              <Label styleClass="input-label" text="Number Of Processes" />
+                              <TextField fx:id="numProcesses" styleClass="input-field" />
+                              <Label styleClass="input-label" text="Max Burst Time" />
+                              <TextField fx:id="maxBurstTimeInput" styleClass="input-field" />
+                              <Label styleClass="input-label" text="Last Possible Arrival Time" />
+                              <TextField fx:id="lastArrivalInput" styleClass="input-field" />
+                           </children>
+                        </VBox>
+
+                        <!-- Outputs Section -->
+                        <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
+                           <children>
+                              <Label styleClass="title" text="Outputs" />
+                              <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="Table View" />
+                                       <String fx:value="Gantt Chart" />
+                                       <String fx:value="Charts View" />
+                                       <String fx:value="Video Simulation" />
+                                    </FXCollections>
+                                 </items>
+                              </ChoiceBox>
+                              <Button fx:id="startSimulation" styleClass="button" text="Show" onAction="#onOutputChoiceChange" />
+                           </children>
+                        </VBox>
+
                      </children>
                   </VBox>
-
-               </children>
-            </VBox>
-
+               </content>
+            </ScrollPane>
             <VBox alignment="TOP_CENTER" prefHeight="395.0" prefWidth="408.0" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" spacing="15">
                <children>
                   <!-- View Section -->
