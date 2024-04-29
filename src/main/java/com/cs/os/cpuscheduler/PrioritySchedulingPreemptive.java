@@ -61,7 +61,7 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
 
         int executionTime;
 
-        if (maxTime == -1 || maxTime >= process.getBurstTime()) {
+        if (maxTime == -1 || maxTime >= (process.getBurstTime() - process.getExecutionTime())) {
             executionTime = process.getBurstTime() - process.getExecutionTime();
             pq.poll();
         } else {

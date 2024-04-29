@@ -14,7 +14,6 @@ public class RRPriorityScheduling implements SchedulingAlgorithm {
     private int threshold;
     private int objectiveTime;
     private int pid;
-    private int higherPriorityPid;
     private int lastTimestamp;
 
     public RRPriorityScheduling (int tq) {
@@ -22,7 +21,6 @@ public class RRPriorityScheduling implements SchedulingAlgorithm {
         this.threshold = -1;
         this.objectiveTime = 0;
         this.pid = 0;
-        this.higherPriorityPid = 0;
         this.numberOfProcesses = 0;
         this.lastTimestamp = 0;
     }
@@ -42,17 +40,7 @@ public class RRPriorityScheduling implements SchedulingAlgorithm {
 
         Process process = pq.poll().getKey();
 
-        /* Iterate over the process queue to find the first Process (in terms of arrival time) who has a higher priority than the currently picked process */
-        higherPriorityPid = pid;
-        int maxTime = Integer.MAX_VALUE;
-        for (int i = higherPriorityPid; i < numberOfProcesses; i++) {
-            if (processQueue.get(i).getPriority() < process.getPriority()) {
-                maxTime = processQueue.get(i).getArrivalTime() - objectiveTime;
-                break;
-            }
-        }
-
-        int executionTime = min(process.getBurstTime() - process.getExecutionTime(), min(timeQuantum, maxTime));
+        int executionTime = min(process.getBurstTime() - process.getExecutionTime(), timeQuantum);
 
         objectiveTime = max(objectiveTime, process.getArrivalTime()) + executionTime;
         threshold = objectiveTime;

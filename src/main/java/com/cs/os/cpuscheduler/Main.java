@@ -35,6 +35,10 @@ public class Main {
         /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(1, 3, 5, 12, 15, 20, 50, 66));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(3, 5, 12, 10, 1, 2, 20, 4));*/
 
+        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 1, 2, 3));
+        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(4, 5, 6, 1));
+        List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1, 2, 1));*/
+
         List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 1, 2, 3));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(4, 5, 6, 1));
         List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1, 2, 1));
