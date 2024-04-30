@@ -329,10 +329,6 @@ public class Controller {
 
         gc.clearRect(0, 0, videoSimulationView.getWidth(), videoSimulationView.getHeight()); // Clear the entire canvas
 
-        // Clear the canvas
-        /*gc.clearRect(0, 0, canvasWidth, canvasHeight);*/
-
-
         // Initialize progress for each process
         for (Process p : processQueue) {
             processProgressMap.put(p.getProcessID(), 0.0);
@@ -342,9 +338,11 @@ public class Controller {
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("System", FontWeight.BOLD, 14)); // Set font style
 
+        List<Process> pqids = processQueue;
+        pqids.sort(Comparator.comparingInt(Process::getProcessID));
         for (int i = 0; i < numberOfProcesses; i++) {
             // Draw process name
-            Process process = processQueue.get(i);
+            Process process = pqids.get(i);
             Text text = new Text("Process " + process.getProcessName());
             text.setFont(gc.getFont());
             double textWidth = text.getBoundsInLocal().getWidth(); // Get the width of the text
@@ -449,7 +447,11 @@ public class Controller {
                 break;
             case "Video Simulation":
                 videoSimulationView.setVisible(true);
-                drawExecutionTimeline(cpuScheduler.getProcessQueue(), cpuScheduler.getProcessExecutionTimeline());
+                List<Process> pq = cpuScheduler.getProcessQueue();
+                for (Process p : pq) {
+                    System.out.println(p.getProcessName());
+                }
+                drawExecutionTimeline(pq, cpuScheduler.getProcessExecutionTimeline());
                 break;
         }
     }
