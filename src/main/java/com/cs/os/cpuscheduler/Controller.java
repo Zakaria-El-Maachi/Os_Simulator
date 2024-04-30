@@ -4,8 +4,13 @@ import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -17,6 +22,7 @@ import org.jfree.data.gantt.TaskSeriesCollection;
 import javafx.embed.swing.SwingNode;
 
 
+import java.awt.*;
 import java.io.File;
 import java.util.*;
 
@@ -226,18 +232,6 @@ public class Controller {
 
 
 
-
-    // Utility method to get the color for each process
-    private String getProcessColor(int processID) {
-        // Generate a color based on the process ID using HSB color model
-        Color color = Color.hsb((processID * 50) % 360, 0.7, 0.7);
-        return String.format("#%02X%02X%02X",
-                (int)(color.getRed() * 255),
-                (int)(color.getGreen() * 255),
-                (int)(color.getBlue() * 255));
-    }
-
-
     public void drawBarChart(List<Pair<Process, Integer>> executionTimeline) {
         // Create a TaskSeriesCollection to hold the data for the Gantt chart
         TaskSeriesCollection collection = new TaskSeriesCollection();
@@ -258,18 +252,14 @@ public class Controller {
                 continue;
             }
 
-            // Determine the start and end time for the process execution
-            int startTime = currentTime;
-            int endTime = currentTime + executionTime;
-
             // Create a Task for the process execution
-            Task task = new Task(process.getProcessName(), new Date(startTime * 1000L), new Date(endTime * 1000L));
+            Task task = new Task(process.getProcessName(), new Date(currentTime * 1000L), new Date((currentTime + executionTime) * 1000L));
 
             // Add the task to the task series
             taskSeries.add(task);
 
             // Update the current time to the end of the process execution
-            currentTime = endTime;
+            currentTime += executionTime;
         }
 
         // Add the task series to the collection
@@ -429,6 +419,7 @@ public class Controller {
         ganttCanvas.setVisible(false);
         chartsView.setVisible(false);
         videoSimulationView.setVisible(false);
+
 
         viewLabel.setText(selectedChoice);
         // Show the selected output view and call the relevant function
@@ -678,10 +669,26 @@ public class Controller {
                 priorityEnabled = 2;
                 algo = new LotteryScheduling(quantum);
                 break;
+            case "Highest Response Ratio Next":
+                algo = new HRRN();
+                break;
         }
 
         cpuScheduler.setSchedulingAlgorithm(algo);
-        algoLabel.setText(selectedAlgorithm);
+
+        String addition = "";
+        if(selectedAlgorithm.equals("Priority Scheduling")){
+            switch (preemptiveChoice.getValue()){
+                case "Non-Preemptive":
+                    addition = roundRobinChoice.getValue();
+                    break;
+                default:
+                    addition = "Preemptive";
+                    break;
+            }
+        }
+
+        algoLabel.setText(selectedAlgorithm + " " + addition);
 
         if(selectedApproach.equals("Random Process Generation")){
             int numberProcesses = Integer.parseInt(numProcesses.getText());

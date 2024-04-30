@@ -79,7 +79,7 @@ public class Process {
         this.lastIdle = lastIdle;
     }
     public double getResponseRatio() {
-        return (double) waitingTime / (waitingTime + burstTime);
+        return (double) (waitingTime + burstTime) / waitingTime;
     }
     public int getTickets() {
         return tickets;

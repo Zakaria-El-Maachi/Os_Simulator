@@ -48,6 +48,7 @@
                                           <String fx:value="Round Robin" />
                                           <String fx:value="Priority Scheduling" />
                                           <String fx:value="Lottery Scheduling" />
+                                          <String fx:value="Highest Response Ratio Next" />
                                        </FXCollections>
                                     </items>
                                  </ChoiceBox>

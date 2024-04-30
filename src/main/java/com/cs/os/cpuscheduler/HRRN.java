@@ -33,8 +33,9 @@ public class HRRN implements SchedulingAlgorithm {
             pid++;
         }
 
-        pq.sort(Comparator.comparingDouble(Process::getResponseRatio));
+        pq.sort(Comparator.comparingDouble(this::getResponseRatio));
         Process process = pq.getLast();
+        pq.removeLast();
 
         int executionTime = process.getBurstTime();
 
@@ -63,4 +64,9 @@ public class HRRN implements SchedulingAlgorithm {
         this.processQueue = processQueue;
         this.numberOfProcesses = processQueue.size();
     }
+
+    private double getResponseRatio(Process p) {
+        return (double) (objectiveTime - p.getArrivalTime() + p.getBurstTime()) / p.getBurstTime();
+    }
+
 }
