@@ -21,6 +21,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -29,6 +32,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+
+
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.application.Platform;
+import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.animation.Animation;
+import javafx.util.Duration;
 
 public class Controller {
     @FXML
@@ -66,6 +81,8 @@ public class Controller {
     @FXML
     private Canvas ganttCanvas;  // The Canvas where the Gantt Chart is drawn
 
+    @FXML
+    private Canvas videoSimulationView;
 
     private CPUScheduler cpuScheduler = new CPUScheduler(new FCFS());
     private ProcessFactory processFactory = new SimpleProcessFactory();
@@ -109,10 +126,13 @@ public class Controller {
         ganttCanvas.heightProperty().bind(visualizationDiv.heightProperty());
         chartsView.prefWidthProperty().bind(visualizationDiv.widthProperty());
         chartsView.prefHeightProperty().bind(visualizationDiv.heightProperty());
+        videoSimulationView.widthProperty().bind(visualizationDiv.widthProperty());
+        videoSimulationView.heightProperty().bind(visualizationDiv.heightProperty());
 
         processTableView.setVisible(false);
         ganttCanvas.setVisible(false);
         chartsView.setVisible(false);
+        videoSimulationView.setVisible(false);
 
     }
 
@@ -221,6 +241,106 @@ public class Controller {
         histogramChart.getData().add(series);
     }
 
+    // Function to draw the execution timeline with animation
+    public void drawExecutionTimeline(List<Process> processQueue, List<Pair<Process, Integer>> executionTimeline) {
+
+        GraphicsContext gc = videoSimulationView.getGraphicsContext2D();
+        double canvasWidth = videoSimulationView.getWidth() * 0.5;
+        double canvasHeight = videoSimulationView.getHeight();
+
+        gc.clearRect(0, 0, videoSimulationView.getWidth(), videoSimulationView.getHeight()); // Clear the entire canvas
+
+        // Clear the canvas
+        /*gc.clearRect(0, 0, canvasWidth, canvasHeight);*/
+
+        Map<Integer, Double> processProgressMap = new HashMap<>();
+        Map<Integer, Color> processColorMap = new HashMap<>();
+        int numberOfProcesses = processQueue.size();
+
+        // Calculate the height of each bar with some spacing
+        double barHeight = (canvasHeight - 250) / numberOfProcesses;
+        double spacing = 50;
+
+        // Initialize progress for each process
+        for (Process p : processQueue) {
+            processProgressMap.put(p.getProcessID(), 0.0);
+            processColorMap.put(p.getProcessID(), getRandomColor());
+        }
+
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("System", FontWeight.BOLD, 14)); // Set font style
+
+        for (int i = 0; i < numberOfProcesses; i++) {
+            // Draw process name
+            Process process = processQueue.get(i);
+            Text text = new Text("Process " + process.getProcessName());
+            text.setFont(gc.getFont());
+            double textWidth = text.getBoundsInLocal().getWidth(); // Get the width of the text
+            double textX = (100 - textWidth) / 2; // Calculate x position to center the text
+            double textY = (i * (barHeight + spacing)) + (barHeight / 2) + 7; // Calculate y position to center the text vertically
+            gc.fillText("Process " + process.getProcessName(), textX, textY);
+
+            // Draw the outline of the bar
+            gc.setStroke(Color.WHITE);
+            gc.strokeRect(100, i * (barHeight + spacing), canvasWidth, barHeight);
+
+        }
+
+        // Create a Timeline to update the execution every 1 second
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            // Your handle code here
+            if (!executionTimeline.isEmpty()) {
+                Pair<Process, Integer> pair = executionTimeline.get(0);
+                Process process = pair.getKey();
+                int executionTime = pair.getValue();
+
+                Double currentProgress = processProgressMap.get(process.getProcessID());
+
+                // Calculate the percentage of completion
+                double progressPercentage = (double) 1 / process.getBurstTime();
+
+                // Calculate the width of the filled part of the bar
+                double filledWidth = progressPercentage * canvasWidth;
+
+                // Draw the filled part of the bar
+                gc.setFill(processColorMap.get(process.getProcessID()));
+                gc.fillRect(100 + currentProgress * canvasWidth, (process.getProcessID()-1) * (barHeight + spacing), filledWidth, barHeight);
+
+                // Draw the percentage background
+                double progressX = 100 + canvasWidth + 10; // Offset from the right side of the bar
+                double progressY = ((process.getProcessID()-1) * (barHeight + spacing)) + (barHeight / 2) + 7;
+                double textBgWidth = 75; // Width of the background rectangle
+                double textBgHeight = barHeight + 0.2 * barHeight; // Height of the background rectangle
+                gc.setFill(Color.web("#2c2f33")); // Background color of the text
+                gc.fillRect(progressX, progressY - textBgHeight, textBgWidth, textBgHeight);
+
+                // Draw the percentage text
+                gc.setFill(Color.WHITE);
+                gc.fillText(String.format("%.2f%%", (currentProgress + progressPercentage) * 100), progressX, progressY);
+
+                // Update the progress
+                processProgressMap.put(process.getProcessID(), progressPercentage + currentProgress);
+                executionTimeline.remove(0);
+                if (executionTime != 1) {
+                    executionTimeline.add(0, new Pair<>(process, executionTime - 1));
+                }
+
+            }
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE); // Run indefinitely
+        timeline.play();
+    }
+
+
+    // Function to get a random color
+    private Color getRandomColor() {
+        double red = Math.random();
+        double green = Math.random();
+        double blue = Math.random();
+        return new Color(red, green, blue, 1);
+    }
+
+
     @FXML
     public void onOutputChoiceChange() {
         setUpSimulation(); // Set up the simulation
@@ -234,7 +354,8 @@ public class Controller {
         processTableView.setVisible(false);
         ganttCanvas.setVisible(false);
         chartsView.setVisible(false);
-//        videoSimulationView.setVisible(false);
+        videoSimulationView.setVisible(false);
+
         viewLabel.setText(selectedChoice);
         // Show the selected output view and call the relevant function
         switch (selectedChoice) {
@@ -252,10 +373,10 @@ public class Controller {
 //                HashMap<String, Integer> histogramData = getHistogramData(); // Assuming you have a method to get histogram data
 //                displayHistogram(histogramData);
                 break;
-//            case "Video Simulation":
-//                videoSimulationView.setVisible(true);
-//                // Implement function to display video simulation if necessary
-//                break;
+            case "Video Simulation":
+                videoSimulationView.setVisible(true);
+                drawExecutionTimeline(cpuScheduler.getProcessQueue(), cpuScheduler.getProcessExecutionTimeline());
+                break;
         }
     }
 

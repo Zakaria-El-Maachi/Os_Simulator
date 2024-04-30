@@ -223,6 +223,11 @@
                            </children>
                         </VBox>
 
+                        <!-- Video Simulation  -->
+                        <HBox alignment="CENTER">
+                           <Canvas fx:id="videoSimulationView" styleClass="gantt-canvas" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+
                      </children>
                   </AnchorPane>
 
