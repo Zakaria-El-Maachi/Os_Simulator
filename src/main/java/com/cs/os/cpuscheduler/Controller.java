@@ -83,6 +83,7 @@ public class Controller {
 
     @FXML
     private Canvas videoSimulationView;
+    private Timeline timeline;
 
     private CPUScheduler cpuScheduler = new CPUScheduler(new FCFS());
     private ProcessFactory processFactory = new SimpleProcessFactory();
@@ -128,6 +129,7 @@ public class Controller {
         chartsView.prefHeightProperty().bind(visualizationDiv.heightProperty());
         videoSimulationView.widthProperty().bind(visualizationDiv.widthProperty());
         videoSimulationView.heightProperty().bind(visualizationDiv.heightProperty());
+
 
         processTableView.setVisible(false);
         ganttCanvas.setVisible(false);
@@ -243,6 +245,9 @@ public class Controller {
 
     // Function to draw the execution timeline with animation
     public void drawExecutionTimeline(List<Process> processQueue, List<Pair<Process, Integer>> executionTimeline) {
+        if (timeline != null) {
+            timeline.stop(); // Stop the previous timeline if it exists
+        }
 
         GraphicsContext gc = videoSimulationView.getGraphicsContext2D();
         double canvasWidth = videoSimulationView.getWidth() * 0.5;
@@ -287,42 +292,46 @@ public class Controller {
         }
 
         // Create a Timeline to update the execution every 1 second
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             // Your handle code here
             if (!executionTimeline.isEmpty()) {
                 Pair<Process, Integer> pair = executionTimeline.get(0);
                 Process process = pair.getKey();
                 int executionTime = pair.getValue();
 
-                Double currentProgress = processProgressMap.get(process.getProcessID());
+                if (process != null) {
 
-                // Calculate the percentage of completion
-                double progressPercentage = (double) 1 / process.getBurstTime();
+                    Double currentProgress = processProgressMap.get(process.getProcessID());
 
-                // Calculate the width of the filled part of the bar
-                double filledWidth = progressPercentage * canvasWidth;
+                    // Calculate the percentage of completion
+                    double progressPercentage = (double) 1 / process.getBurstTime();
 
-                // Draw the filled part of the bar
-                gc.setFill(processColorMap.get(process.getProcessID()));
-                gc.fillRect(100 + currentProgress * canvasWidth, (process.getProcessID()-1) * (barHeight + spacing), filledWidth, barHeight);
+                    // Calculate the width of the filled part of the bar
+                    double filledWidth = progressPercentage * canvasWidth;
 
-                // Draw the percentage background
-                double progressX = 100 + canvasWidth + 10; // Offset from the right side of the bar
-                double progressY = ((process.getProcessID()-1) * (barHeight + spacing)) + (barHeight / 2) + 7;
-                double textBgWidth = 75; // Width of the background rectangle
-                double textBgHeight = barHeight + 0.2 * barHeight; // Height of the background rectangle
-                gc.setFill(Color.web("#2c2f33")); // Background color of the text
-                gc.fillRect(progressX, progressY - textBgHeight, textBgWidth, textBgHeight);
+                    // Draw the filled part of the bar
+                    gc.setFill(processColorMap.get(process.getProcessID()));
+                    gc.fillRect(100 + currentProgress * canvasWidth, (process.getProcessID() - 1) * (barHeight + spacing), filledWidth, barHeight);
 
-                // Draw the percentage text
-                gc.setFill(Color.WHITE);
-                gc.fillText(String.format("%.2f%%", (currentProgress + progressPercentage) * 100), progressX, progressY);
+                    // Draw the percentage background
+                    double progressX = 100 + canvasWidth + 10; // Offset from the right side of the bar
+                    double progressY = ((process.getProcessID() - 1) * (barHeight + spacing)) + (barHeight / 2) + 7;
+                    double textBgWidth = 75; // Width of the background rectangle
+                    double textBgHeight = barHeight + 0.2 * barHeight; // Height of the background rectangle
+                    gc.setFill(Color.web("#2c2f33")); // Background color of the text
+                    gc.fillRect(progressX, progressY - textBgHeight, textBgWidth, textBgHeight);
 
-                // Update the progress
-                processProgressMap.put(process.getProcessID(), progressPercentage + currentProgress);
-                executionTimeline.remove(0);
-                if (executionTime != 1) {
-                    executionTimeline.add(0, new Pair<>(process, executionTime - 1));
+                    // Draw the percentage text
+                    gc.setFill(Color.WHITE);
+                    gc.fillText(String.format("%.2f%%", (currentProgress + progressPercentage) * 100), progressX, progressY);
+
+                    // Update the progress
+                    processProgressMap.put(process.getProcessID(), progressPercentage + currentProgress);
+                    executionTimeline.remove(0);
+                    if (executionTime != 1) {
+                        executionTimeline.add(0, new Pair<>(process, executionTime - 1));
+                    }
+
                 }
 
             }
@@ -638,7 +647,11 @@ public class Controller {
         double columnSpacing = 27;
         double cornerRadius = 10; // Corner radius for rounded rectangles
         int osTime = 0;
-        double currentX = 0;
+
+        double leftPadding = 20;
+        double rightPadding = 20;
+
+        double currentX = leftPadding;
         double currentY = 0; // Start at the top of the canvas
         int currentRow = 0; // Keep track of current row
 
@@ -648,7 +661,7 @@ public class Controller {
 
         // Set a random but unique color for each process
         for (Pair<Process, Integer> execution : processList) {
-            if (!processColors.containsKey(execution.getKey().getProcessName())) {
+            if (execution.getKey() != null && !processColors.containsKey(execution.getKey().getProcessName())) {
                 processColors.put(execution.getKey().getProcessName(), getRandomColor(random));
             }
         }
@@ -658,12 +671,26 @@ public class Controller {
             Pair<Process, Integer> execution = processList.get(i);
             Process process = execution.getKey();
             int executionTime = execution.getValue();
+
+
+            if (process == null) {
+                // When process is null, draw a white horizontal line to represent the gap
+                double gapWidth = executionTime * unitWidth;
+                gc.setStroke(Color.WHITE);
+                gc.setLineWidth(2); // Set the line width as desired
+                gc.strokeLine(currentX, currentY + rectangleHeight / 2, currentX + gapWidth, currentY + rectangleHeight / 2);
+                osTime += executionTime;
+                currentX += gapWidth + rowSpacing;
+                continue;
+            }
+
+
             Color color = processColors.get(process.getProcessName());
             double processWidth = executionTime * unitWidth;
 
             // Check if current rectangle exceeds canvas width
-            if (currentX + processWidth > ganttCanvas.getWidth()) {
-                currentX = 0; // Reset currentX to wrap
+            if (currentX + processWidth > ganttCanvas.getWidth() - rightPadding) {
+                currentX = leftPadding; // Reset currentX to wrap
                 currentRow++; // Move to the next row
                 currentY = currentRow * (rectangleHeight + columnSpacing); // Calculate new y-coordinate
             }
@@ -673,7 +700,7 @@ public class Controller {
             gc.fillRoundRect(currentX, currentY, processWidth, rectangleHeight, cornerRadius, cornerRadius);
 
             // Draw process ID inside the rectangle
-            gc.setFill(Color.BLACK);
+            gc.setFill(Color.WHITE);
             double processTextY = currentY + rectangleHeight / 2 + 4; // Positioning in the center of the rectangle
             gc.fillText(process.getProcessName(), currentX + processWidth / 2, processTextY);
 
