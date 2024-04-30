@@ -66,13 +66,18 @@ class CPUScheduler {
         double totalWaitingTimeSquared = 0;
         int numProcesses = processQueue.size();
 
+        int lastRunningProcessID = 0;
+
         while (toBeExecuted > 0) {
             Pair<Process, Integer> nextProcessTime = schedulingAlgorithm.schedule();
             this.executionTimeline.add(nextProcessTime);
             Process nextProcess = nextProcessTime.getKey();
             int execTime = nextProcessTime.getValue();
 
-            osTime = Integer.max(osTime, nextProcess.getArrivalTime());
+            if(nextProcess.getLastIdle() > osTime){
+                executionTimeline.add(new Pair<>(null, nextProcess.getArrivalTime() - osTime));
+                osTime = nextProcess.getArrivalTime();
+            }
 
             int waitingTime = osTime - nextProcess.getLastIdle();
             nextProcess.addWaitingTime(waitingTime); // Add the waiting time to the process
@@ -80,9 +85,9 @@ class CPUScheduler {
 //            cpu.executeProcess(nextProcess, execTime); // Execute the process for the specified execTime
 
             // Increment context switches if necessary
-            if (nextProcess.getLastIdle() < osTime) {
+            if (lastRunningProcessID != nextProcess.getProcessID())
                 contextSwitches++;
-            }
+
 
             osTime += execTime; // Update osTime based on execTime
             nextProcess.addExecutionTime(execTime);

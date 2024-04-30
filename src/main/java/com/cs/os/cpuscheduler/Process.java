@@ -9,6 +9,8 @@ public class Process {
     private int executionTime = 0;
     private int priority = 0;
 
+    private int tickets = 0;
+
 
     // Constructor
     public Process(int processID, int arrivalTime, int burstTime, int priority) {
@@ -75,9 +77,13 @@ public class Process {
     public void setLastIdle(int lastIdle) {
         this.lastIdle = lastIdle;
     }
-    public void setPriority(int p) {
-        this.priority = p;
+    public double getResponseRatio() {
+        return (double) waitingTime / (waitingTime + burstTime);
     }
+    public int getTickets() {
+        return tickets;
+    }
+
 
     // Converts an integer to its corresponding representation in the alphabet.
     public static String intToAlphabet(int num) {
