@@ -494,7 +494,7 @@ public class Controller {
         Collections.addAll(arrivalTimes, arrivalTimeInput.getText().split("\\s+"));
         Collections.addAll(burstTimes, burstTimeInput.getText().split("\\s+"));
         Collections.addAll(priority, priorityInput.getText().split("\\s+"));
-        Collections.addAll(priority, ticketsInput.getText().split("\\s+"));
+        Collections.addAll(tickets, ticketsInput.getText().split("\\s+"));
     }
 
     private void createListsFromFile(String filePath, List<String> arrivalTimes, List<String> burstTimes, List<String> priority, List<String> tickets) throws IOException {
@@ -613,8 +613,8 @@ public class Controller {
             } else if(usePriority == 2){
                 tickets = new ArrayList<>();
                 // Check for mismatched lengths if priority scheduling is used
-                if (arrivalTimesStrings.size() != priorityStrings.size()) {
-                    showError("Mismatch in arrival and priority times length.");
+                if (arrivalTimesStrings.size() != ticketsStrings.size()) {
+                    showError("Mismatch in arrival and tickets times length.");
                     return null;
                 }
 

@@ -76,7 +76,7 @@ class CPUScheduler {
 
             if(nextProcess.getLastIdle() > osTime){
                 executionTimeline.add(new Pair<>(null, nextProcess.getArrivalTime() - osTime));
-                osTime = nextProcess.getArrivalTime();
+                osTime = nextProcess.getLastIdle();
             }
 
             this.executionTimeline.add(nextProcessTime);
