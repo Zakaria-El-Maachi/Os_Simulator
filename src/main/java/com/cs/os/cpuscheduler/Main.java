@@ -27,9 +27,9 @@ public class Main {
         List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1));*/
 
 
-        List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 0, 6, 11, 12));
+        /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 0, 6, 11, 12));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(4, 3, 7, 4, 2));;
-        List<Integer> priorities = new ArrayList<>(Arrays.asList(1, 2, 1, 3, 2));
+        List<Integer> priorities = new ArrayList<>(Arrays.asList(1, 2, 1, 3, 2));*/
 
         /*List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(1, 4, 6, 2, 100));
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(10, 15, 2, 20, 2));;
@@ -44,11 +44,13 @@ public class Main {
         List<Integer> burstTimes = new ArrayList<>(Arrays.asList(4, 5, 6, 1));
         List<Integer> priorities = new ArrayList<>(Arrays.asList(2, 1, 2, 1));*/
 
-        int tq = 3;
+        List<Integer> arrivalTimes = new ArrayList<>(Arrays.asList(0, 2, 4, 6, 8));
+        List<Integer> burstTimes = new ArrayList<>(Arrays.asList(3, 6, 4, 5, 2));
+        int tq = 1;
 
         List<Process> processes = new ArrayList<>();
         for (int i = 1; i <= arrivalTimes.size(); i++) {
-            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1), priorities.get(i-1), 0);
+            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1));
             processes.add(process);
         }
 
@@ -56,9 +58,10 @@ public class Main {
         /*FCFS algo = new FCFS();*/
         /*SJF algo = new SJF();*/
         /*PrioritySchedulingNonPreemptive algo = new PrioritySchedulingNonPreemptive();*/
-        PrioritySchedulingPreemptive algo = new PrioritySchedulingPreemptive();
+        /*PrioritySchedulingPreemptive algo = new PrioritySchedulingPreemptive();*/
         /*RoundRobin algo = new RoundRobin(tq);*/
         /*RRPriorityScheduling algo = new RRPriorityScheduling(tq);*/
+        SRTF algo = new SRTF(tq);
 
         CPUScheduler cs = new CPUScheduler(algo);
 
