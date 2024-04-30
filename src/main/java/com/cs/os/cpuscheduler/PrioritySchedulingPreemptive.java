@@ -1,55 +1,26 @@
 package com.cs.os.cpuscheduler;
 
 import javafx.util.Pair;
-
-import java.util.*;
-
 import static java.lang.Integer.max;
 
-class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
+class PrioritySchedulingPreemptive extends AlgorithmTemplate {
 
-    private PriorityQueue<Process> pq = new PriorityQueue<>(PrioritySchedulingPreemptive::compare);
-    private int threshold;
-    private int objectiveTime;
-    private List<Process> processQueue;
-    private int pid;
-    private int higherPriorityPid;
-    private int numberOfProcesses;
-
-    public PrioritySchedulingPreemptive() {
-        this.threshold = -1;
-        this.objectiveTime = 0;
-        this.pid = 0;
-        this.higherPriorityPid = 0;
-        this.numberOfProcesses = 0;
-    }
+    public PrioritySchedulingPreemptive() { super(); }
 
     @Override
-    public Pair<Process, Integer> schedule() {
-        if (processQueue.isEmpty()) {
-            return null;
-        }
+    public void checkIfReadyQueueIsEmpty() { checkIfReadyQueueIsEmptyOption1(); }
 
-        if (pq.isEmpty() && pid < numberOfProcesses) {
-            if (processQueue.get(pid).getArrivalTime() > threshold) {
-                threshold = processQueue.get(pid).getArrivalTime();
-                objectiveTime = processQueue.get(0).getArrivalTime();
-            }
-        }
+    @Override
+    public Pair<Process, Integer> updateTimes() { return new Pair<>(null, null); }
 
-        for (int i = pid; i < numberOfProcesses; i++) {
-            if (processQueue.get(i).getArrivalTime() <= threshold) {
-                pq.add(processQueue.get(i));
-                pid++;
-            } else {
-                pid = i;
-                break;
-            }
-        }
+    @Override
+    public void addToReadyQueue(int t) { addToReadyQueueOption1(t); }
 
+    @Override
+    public Pair<Process, Integer> finalStep(Process p, Integer et) {
         Process process = pq.peek();
 
-        /* Iterate over the process queue to find the first Process (in terms of arrival time) who has a higher priority than the currently picked process */
+        // Determine the higher priority PID and the maximum time difference for higher priority processes
         higherPriorityPid = pid;
         int maxTime = -1;
         for (int i = higherPriorityPid; i < numberOfProcesses; i++) {
@@ -59,6 +30,7 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
             }
         }
 
+        // Calculate the execution time based on whether there are higher priority processes or not
         int executionTime;
 
         if (maxTime == -1 || maxTime >= (process.getBurstTime() - process.getExecutionTime())) {
@@ -68,6 +40,7 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
             executionTime =  maxTime;
         }
 
+        // Update the objective time and threshold based on the execution time
         objectiveTime = max(objectiveTime, process.getArrivalTime());
         threshold = objectiveTime + executionTime;
         objectiveTime += executionTime;
@@ -76,19 +49,20 @@ class PrioritySchedulingPreemptive implements SchedulingAlgorithm {
     }
 
     @Override
-    public void setUpAlgorithm(List<Process> processQueue) {
-        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getPriority));
-
-        System.out.println("Processes have been sorted by arrival time, then by priority.");
-
-        this.numberOfProcesses = processQueue.size();
-        this.processQueue = processQueue;
+    protected int getSecondaryCriteria(Process process) {
+        return process.getPriority();
     }
 
-    public static int compare(Process p1, Process p2) {
+    @Override
+    protected int compareProcesses(Process p1, Process p2) {
         if (p1.getPriority() != p2.getPriority())
             return p1.getPriority() - p2.getPriority();
         return p1.getArrivalTime() - p2.getArrivalTime();
+    }
+
+    @Override
+    protected int compareProcessesWithTimestamp(Pair<Process, Integer> p1, Pair<Process, Integer> p2) {
+        return 0;
     }
 
 }

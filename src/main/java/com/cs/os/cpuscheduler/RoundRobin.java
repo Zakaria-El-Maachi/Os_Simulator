@@ -2,76 +2,30 @@ package com.cs.os.cpuscheduler;
 
 import javafx.util.Pair;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+public class RoundRobin extends AlgorithmTemplate {
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-public class RoundRobin implements SchedulingAlgorithm {
-    private List<Process> processQueue;
-    private int numberOfProcesses;
-    private Queue<Process> readyQueue;
-    private int timeQuantum;
-    private int threshold;
-    private int objectiveTime;
-    private int pid;
-
-    public RoundRobin(int tq) {
-        this.threshold = -1;
-        this.objectiveTime = 0;
-        this.timeQuantum = tq;
-        this.pid = 0;
-        this.readyQueue = new LinkedList<>();
-    }
+    public RoundRobin(int tq) { super(tq); }
 
     @Override
-    public Pair<Process, Integer> schedule() {
-        if (processQueue.isEmpty()) {
-            return null;
-        }
-
-        if (readyQueue.isEmpty() && pid < numberOfProcesses) {
-            readyQueue.add(processQueue.get(pid));
-            objectiveTime = processQueue.get(pid).getArrivalTime();
-            pid++;
-        }
-
-        Process process = readyQueue.poll();
-
-        int executionTime = min(process.getBurstTime() - process.getExecutionTime(), timeQuantum);
-
-        objectiveTime = max(objectiveTime, process.getArrivalTime()) + executionTime;
-        threshold = objectiveTime;
-
-        for (int i = pid; i < numberOfProcesses; i++) {
-            if (processQueue.get(i).getArrivalTime() <= threshold) {
-                readyQueue.add(processQueue.get(i));
-                pid++;
-            } else {
-                pid = i;
-                break;
-            }
-        }
-
-        // If the process has not finished yet
-        if (process.getExecutionTime() + executionTime != process.getBurstTime()) {
-            readyQueue.add(process);
-        }
-
-        return new Pair<>(process, executionTime);
-    }
+    public void checkIfReadyQueueIsEmpty() { checkIfReadyQueueIsEmptyOption2(); }
 
     @Override
-    public void setUpAlgorithm(List<Process> processQueue) {
-        // Sort the list of processes based on arrival time
-        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime));
+    public Pair<Process, Integer> updateTimes() { return updateTimesOption2(); }
 
-        System.out.println("Processes have been sorted by arrival time.");
+    @Override
+    public void addToReadyQueue(int t) { addToReadyQueueOption2(t); }
 
-        this.processQueue = processQueue;
-        this.numberOfProcesses = processQueue.size();
+    @Override
+    public Pair<Process, Integer> finalStep(Process process, Integer executionTime) { return finalStepOption2(process, executionTime); }
+
+    @Override
+    protected int getSecondaryCriteria(Process process) { return 0; }
+
+    @Override
+    protected int compareProcesses(Process p1, Process p2) { return 0; }
+
+    @Override
+    protected int compareProcessesWithTimestamp(Pair<Process, Integer> p1, Pair<Process, Integer> p2) {
+        return 0;
     }
 }
