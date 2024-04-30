@@ -70,7 +70,7 @@ class CPUScheduler {
 
         while (toBeExecuted > 0) {
             Pair<Process, Integer> nextProcessTime = schedulingAlgorithm.schedule();
-            this.executionTimeline.add(nextProcessTime);
+
             Process nextProcess = nextProcessTime.getKey();
             int execTime = nextProcessTime.getValue();
 
@@ -78,6 +78,8 @@ class CPUScheduler {
                 executionTimeline.add(new Pair<>(null, nextProcess.getArrivalTime() - osTime));
                 osTime = nextProcess.getArrivalTime();
             }
+
+            this.executionTimeline.add(nextProcessTime);
 
             int waitingTime = osTime - nextProcess.getLastIdle();
             nextProcess.addWaitingTime(waitingTime); // Add the waiting time to the process
@@ -87,6 +89,8 @@ class CPUScheduler {
             // Increment context switches if necessary
             if (lastRunningProcessID != nextProcess.getProcessID())
                 contextSwitches++;
+
+            lastRunningProcessID = nextProcess.getProcessID();
 
 
             osTime += execTime; // Update osTime based on execTime
@@ -110,6 +114,8 @@ class CPUScheduler {
                 toBeExecuted--;
             }
         }
+
+        contextSwitches--;
 
         // Calculate average turnaround time
         averageTurnaround = totalTurnaroundTime / numProcesses;
