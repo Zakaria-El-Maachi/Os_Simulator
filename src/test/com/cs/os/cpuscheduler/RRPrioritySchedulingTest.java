@@ -27,10 +27,10 @@ public class RRPrioritySchedulingTest extends BaseSchedulerTest {
         return Stream.of(
                 new Object[]{ // Test case 1
                         Arrays.asList(
-                                new Process(1, 0, 4, 2),
-                                new Process(2, 1, 5, 1),
-                                new Process(3, 2, 6, 2),
-                                new Process(4, 3, 1, 1)
+                                new Process(1, 0, 4, 2, 0),
+                                new Process(2, 1, 5, 1, 0),
+                                new Process(3, 2, 6, 2, 0),
+                                new Process(4, 3, 1, 1, 0)
                         ),
                         Arrays.asList(
                                 Arrays.asList(1, 0, 4, 13, 13, 9),
@@ -44,11 +44,11 @@ public class RRPrioritySchedulingTest extends BaseSchedulerTest {
                 },
                 new Object[]{ // Test case 2
                         Arrays.asList(
-                                new Process(1, 0, 4, 2),
-                                new Process(2, 1, 5, 1),
-                                new Process(3, 2, 6, 2),
-                                new Process(4, 3, 1, 1),
-                                new Process(5, 20, 10, 2)
+                                new Process(1, 0, 4, 2, 0),
+                                new Process(2, 1, 5, 1, 0),
+                                new Process(3, 2, 6, 2, 0),
+                                new Process(4, 3, 1, 1, 0),
+                                new Process(5, 20, 10, 2, 0)
                         ),
                         Arrays.asList(
                                 Arrays.asList(1, 0, 4, 13, 13, 9),

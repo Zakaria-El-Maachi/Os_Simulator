@@ -4,12 +4,18 @@ import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.*;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.GanttRenderer;
+import org.jfree.data.gantt.Task;
+import org.jfree.data.gantt.TaskSeries;
+import org.jfree.data.gantt.TaskSeriesCollection;
+import javafx.embed.swing.SwingNode;
+
 
 import java.io.File;
 import java.util.*;
@@ -34,12 +40,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.application.Platform;
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.animation.Animation;
@@ -49,11 +50,10 @@ public class Controller {
     @FXML
     public HBox quantumInputSection;
     @FXML
-    public BarChart histogramChart;
     public AnchorPane visualizationDiv;
 
     @FXML // ChoiceBox for approach selection and algorithm selection
-    private ChoiceBox<String> approachChoice, algorithmChoice, preemptiveChoice, agingChoice, roundRobinChoice, outputChoiceBox;
+    private ChoiceBox<String> approachChoice, algorithmChoice, preemptiveChoice, roundRobinChoice, outputChoiceBox;
 
     @FXML // VBox sections for different input methods
     private VBox normalInputSection, fileInputSection, randomProcessSection, priorityOptions, chartsView;
@@ -91,10 +91,10 @@ public class Controller {
     private File selectedFile;
 
 
-    public record Triple<L, M, R>(L left, M middle, R right) {}
+    public record Quadruple<A, B, C, D>(A first, B second, C third, D fourth) {}
 
 
-    @FXML
+        @FXML
     public void initialize() {
 
         normalInputSection.setVisible(false);
@@ -128,7 +128,6 @@ public class Controller {
         chartsView.prefWidthProperty().bind(visualizationDiv.widthProperty());
         chartsView.prefHeightProperty().bind(visualizationDiv.heightProperty());
         videoSimulationView.widthProperty().bind(visualizationDiv.widthProperty());
-        videoSimulationView.heightProperty().bind(visualizationDiv.heightProperty());
 
 
         processTableView.setVisible(false);
@@ -203,7 +202,7 @@ public class Controller {
                 priorityOptions.setManaged(true);
                 onPriorityRRChoiceChange();
                 break;
-            case "Round Robin":
+            case "Round Robin", "Lottery Scheduling", "Shortest Time Remaining":
                 quantumInputSection.setVisible(true);
                 quantumInputSection.setManaged(true);
                 break;
@@ -226,45 +225,113 @@ public class Controller {
     }
 
 
-    @FXML
-    public void displayHistogram(HashMap<String, Integer> data) {
-        // Clear the existing data from the histogram chart
-        histogramChart.getData().clear();
 
-        // Create a new data series
-        XYChart.Series<String, Integer> series = new XYChart.Series<>();
 
-        // Add data from the HashMap to the series
-        for (Map.Entry<String, Integer> entry : data.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+    // Utility method to get the color for each process
+    private String getProcessColor(int processID) {
+        // Generate a color based on the process ID using HSB color model
+        Color color = Color.hsb((processID * 50) % 360, 0.7, 0.7);
+        return String.format("#%02X%02X%02X",
+                (int)(color.getRed() * 255),
+                (int)(color.getGreen() * 255),
+                (int)(color.getBlue() * 255));
+    }
+
+
+    public void drawBarChart(List<Pair<Process, Integer>> executionTimeline) {
+        // Create a TaskSeriesCollection to hold the data for the Gantt chart
+        TaskSeriesCollection collection = new TaskSeriesCollection();
+
+        // Create a TaskSeries for each process
+        TaskSeries taskSeries = new TaskSeries("Processes");
+
+        // Initialize the current time to start drawing from zero
+        int currentTime = 0;
+
+        // Iterate through the execution timeline
+        for (Pair<Process, Integer> entry : executionTimeline) {
+            Process process = entry.getKey();
+            Integer executionTime = entry.getValue();
+
+            if (process == null) {
+                currentTime += executionTime;
+                continue;
+            }
+
+            // Determine the start and end time for the process execution
+            int startTime = currentTime;
+            int endTime = currentTime + executionTime;
+
+            // Create a Task for the process execution
+            Task task = new Task(process.getProcessName(), new Date(startTime * 1000L), new Date(endTime * 1000L));
+
+            // Add the task to the task series
+            taskSeries.add(task);
+
+            // Update the current time to the end of the process execution
+            currentTime = endTime;
         }
 
-        // Add the data series to the histogram chart
-        histogramChart.getData().add(series);
+        // Add the task series to the collection
+        collection.add(taskSeries);
+
+        // Create the Gantt chart using the collection
+        JFreeChart ganttChart = ChartFactory.createGanttChart(
+                "Execution Timeline",
+                "Process",
+                "Time",
+                collection,
+                true, // Legend
+                true, // Tooltips
+                false // URLs
+        );
+
+        // Customize the Gantt chart if needed
+        CategoryPlot plot = (CategoryPlot) ganttChart.getPlot();
+        GanttRenderer renderer = new GanttRenderer();
+        plot.setRenderer(renderer);
+
+        // Create a SwingNode to embed the Gantt chart in the JavaFX HBox
+        SwingNode swingNode = new SwingNode();
+
+        // Set the Swing content in a Runnable to be executed on the Swing thread
+        Platform.runLater(() -> {
+            // Create a ChartPanel for the Gantt chart and set it as the SwingNode content
+            ChartPanel chartPanel = new ChartPanel(ganttChart);
+            swingNode.setContent(chartPanel);
+        });
+
+        // Clear any existing children in the HBox
+        chartsView.getChildren().clear();
+
+        // Add the SwingNode to the HBox
+        chartsView.getChildren().add(swingNode);
     }
 
     // Function to draw the execution timeline with animation
-    public void drawExecutionTimeline(List<Process> processQueue, List<Pair<Process, Integer>> executionTimeline) {
+    private void drawExecutionTimeline(List<Process> processQueue, List<Pair<Process, Integer>> executionTimeline) {
         if (timeline != null) {
             timeline.stop(); // Stop the previous timeline if it exists
         }
-
-        GraphicsContext gc = videoSimulationView.getGraphicsContext2D();
-        double canvasWidth = videoSimulationView.getWidth() * 0.5;
-        double canvasHeight = videoSimulationView.getHeight();
-
-        gc.clearRect(0, 0, videoSimulationView.getWidth(), videoSimulationView.getHeight()); // Clear the entire canvas
-
-        // Clear the canvas
-        /*gc.clearRect(0, 0, canvasWidth, canvasHeight);*/
 
         Map<Integer, Double> processProgressMap = new HashMap<>();
         Map<Integer, Color> processColorMap = new HashMap<>();
         int numberOfProcesses = processQueue.size();
 
         // Calculate the height of each bar with some spacing
-        double barHeight = (canvasHeight - 250) / numberOfProcesses;
-        double spacing = 50;
+        double barHeight = 50;
+        double spacing = 20;
+
+        videoSimulationView.setHeight((barHeight+spacing) * numberOfProcesses);
+
+        GraphicsContext gc = videoSimulationView.getGraphicsContext2D();
+        double canvasWidth = videoSimulationView.getWidth() * 0.65;
+
+        gc.clearRect(0, 0, videoSimulationView.getWidth(), videoSimulationView.getHeight()); // Clear the entire canvas
+
+        // Clear the canvas
+        /*gc.clearRect(0, 0, canvasWidth, canvasHeight);*/
+
 
         // Initialize progress for each process
         for (Process p : processQueue) {
@@ -327,11 +394,11 @@ public class Controller {
 
                     // Update the progress
                     processProgressMap.put(process.getProcessID(), progressPercentage + currentProgress);
-                    executionTimeline.remove(0);
-                    if (executionTime != 1) {
-                        executionTimeline.add(0, new Pair<>(process, executionTime - 1));
-                    }
+                }
 
+                executionTimeline.remove(0);
+                if (executionTime != 1) {
+                    executionTimeline.add(0, new Pair<>(process, executionTime - 1));
                 }
 
             }
@@ -351,7 +418,7 @@ public class Controller {
 
 
     @FXML
-    public void onOutputChoiceChange() {
+    private void onOutputChoiceChange() {
         setUpSimulation(); // Set up the simulation
         cpuScheduler.runScheduler(); // Run the scheduler
 
@@ -378,9 +445,7 @@ public class Controller {
                 break;
             case "Charts View":
                 chartsView.setVisible(true);
-                // Call the function to display the histogram if necessary
-//                HashMap<String, Integer> histogramData = getHistogramData(); // Assuming you have a method to get histogram data
-//                displayHistogram(histogramData);
+                drawBarChart(cpuScheduler.getProcessExecutionTimeline());
                 break;
             case "Video Simulation":
                 videoSimulationView.setVisible(true);
@@ -416,23 +481,26 @@ public class Controller {
         }
     }
 
-    private void createListsFromInputs(List<String> arrivalTimes, List<String> burstTimes, List<String> priority) {
+    private void createListsFromInputs(List<String> arrivalTimes, List<String> burstTimes, List<String> priority, List<String> tickets) {
         // Clear the existing lists
         arrivalTimes.clear();
         burstTimes.clear();
         priority.clear();
+        tickets.clear();
 
         // Split inputs and add them to the existing lists
         Collections.addAll(arrivalTimes, arrivalTimeInput.getText().split("\\s+"));
         Collections.addAll(burstTimes, burstTimeInput.getText().split("\\s+"));
         Collections.addAll(priority, priorityInput.getText().split("\\s+"));
+        Collections.addAll(priority, ticketsInput.getText().split("\\s+"));
     }
 
-    private void createListsFromFile(String filePath, List<String> arrivalTimes, List<String> burstTimes, List<String> priority) throws IOException {
+    private void createListsFromFile(String filePath, List<String> arrivalTimes, List<String> burstTimes, List<String> priority, List<String> tickets) throws IOException {
         // Clear the existing lists
         arrivalTimes.clear();
         burstTimes.clear();
         priority.clear();
+        tickets.clear();
 
         // Create a BufferedReader to read the file
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -459,18 +527,24 @@ public class Controller {
             if (line != null) {
                 // Split the line and add to the existing list
                 Collections.addAll(priority, line.split("\\s+"));
-            } else {
-                // If the priority line is missing, set the priority list to null
-                priority.clear();
             }
+
+            // Read the third line for priorities (if present)
+            line = reader.readLine();
+            if (line != null) {
+                // Split the line and add to the existing list
+                Collections.addAll(tickets, line.split("\\s+"));
+            }
+
         }
     }
 
-    private Triple<List<Integer>, List<Integer>, List<Integer>> createProcessInfo(File file, boolean usePriority) {
+    private Quadruple<List<Integer>, List<Integer>, List<Integer>, List<Integer>> createProcessInfo(File file, int usePriority) {
         // Variables to store the inputs as strings
         List<String> arrivalTimesStrings = new ArrayList<>();
         List<String> burstTimesStrings = new ArrayList<>();
         List<String> priorityStrings = new ArrayList<>();
+        List<String> ticketsStrings = new ArrayList<>();
 
         // Get the selected approach
         String selectedApproach = approachChoice.getValue();
@@ -480,12 +554,12 @@ public class Controller {
             switch (selectedApproach) {
                 case "Normal Input":
                     // Use user input
-                    createListsFromInputs(arrivalTimesStrings, burstTimesStrings, priorityStrings);
+                    createListsFromInputs(arrivalTimesStrings, burstTimesStrings, priorityStrings, ticketsStrings);
                     break;
                 case "File Input":
                     // Use file input
                     if (file != null && !file.getPath().isEmpty()) {
-                        createListsFromFile(file.getPath(), arrivalTimesStrings, burstTimesStrings, priorityStrings);
+                        createListsFromFile(file.getPath(), arrivalTimesStrings, burstTimesStrings, priorityStrings, ticketsStrings);
                     } else {
                         showError("No file selected for File Input approach.");
                         return null;
@@ -501,7 +575,7 @@ public class Controller {
             // Convert the string lists to integer lists
             List<Integer> arrivalTimes = new ArrayList<>();
             List<Integer> burstTimes = new ArrayList<>();
-            List<Integer> priorities = new ArrayList<>();
+
 
             // Check for mismatched lengths
             if (arrivalTimesStrings.size() != burstTimesStrings.size()) {
@@ -518,8 +592,12 @@ public class Controller {
                 burstTimes.add(burstTime);
             }
 
+            List<Integer> priorities = Collections.nCopies(arrivalTimes.size(), 1);
+            List<Integer> tickets = Collections.nCopies(arrivalTimes.size(), 1);;
+
             // Handle priority list based on whether priority scheduling is being used
-            if (usePriority) {
+            if (usePriority == 1) {
+                priorities = new ArrayList<>();
                 // Check for mismatched lengths if priority scheduling is used
                 if (arrivalTimesStrings.size() != priorityStrings.size()) {
                     showError("Mismatch in arrival and priority times length.");
@@ -530,13 +608,22 @@ public class Controller {
                 for (String priorityString : priorityStrings) {
                     priorities.add(Integer.parseInt(priorityString));
                 }
-            } else {
-                // Set all priorities to 1 if priority scheduling is not used
-                priorities = Collections.nCopies(arrivalTimes.size(), 1);
+            } else if(usePriority == 2){
+                tickets = new ArrayList<>();
+                // Check for mismatched lengths if priority scheduling is used
+                if (arrivalTimesStrings.size() != priorityStrings.size()) {
+                    showError("Mismatch in arrival and priority times length.");
+                    return null;
+                }
+
+                // Convert priority strings to integers
+                for (String ticketString : ticketsStrings) {
+                    tickets.add(Integer.parseInt(ticketString));
+                }
             }
 
             // Return the Triple with the processed lists
-            return new Triple<>(arrivalTimes, burstTimes, priorities);
+            return new Quadruple<>(arrivalTimes, burstTimes, priorities, tickets);
 
         } catch (IOException e) {
             showError("An error occurred while reading the file. Please check the file path.");
@@ -549,7 +636,7 @@ public class Controller {
     }
 
     private void setUpSimulation(){
-        boolean priorityEnabled = false;
+        int priorityEnabled = 0;
 
         processList.clear();
         cpuScheduler.clearProcesses();
@@ -572,10 +659,10 @@ public class Controller {
                 algo = new RoundRobin(quantum);
                 break;
             case "Shortest Time Remaining":
-//                algo = new STR();
+                algo = new SRTF(quantum);
                 break;
             case "Priority Scheduling":
-                priorityEnabled = true;
+                priorityEnabled = 1;
                 if(selectedRR.equals("With Round Robin")){
                     algo = new RRPriorityScheduling(quantum);
                     break;
@@ -586,7 +673,8 @@ public class Controller {
                     algo = new PrioritySchedulingNonPreemptive();
                 break;
             case "Lottery Scheduling":
-//                algo = new Lottery();
+                priorityEnabled = 2;
+                algo = new LotteryScheduling(quantum);
                 break;
         }
 
@@ -597,9 +685,10 @@ public class Controller {
             int numberProcesses = Integer.parseInt(numProcesses.getText());
             int lastArrival = Integer.parseInt(lastArrivalInput.getText());
             int bursttime = Integer.parseInt(maxBurstTimeInput.getText());
+            int ticketsNumber = numberProcesses * 100;
 
             for(int i = 0; i < numberProcesses; i++){
-                Process p = processFactory.createRandomProcess(lastArrival, bursttime, numberProcesses);
+                Process p = processFactory.createRandomProcess(lastArrival, bursttime, numberProcesses, ticketsNumber);
                 processList.add(p);
                 cpuScheduler.addProcess(p);
             }
@@ -607,20 +696,20 @@ public class Controller {
         }
 
         // Get the process information (arrival times, burst times, and priorities) from createProcessInfo method
-        Triple<List<Integer>, List<Integer>, List<Integer>> processInfos = createProcessInfo(selectedFile, priorityEnabled);
+        Quadruple<List<Integer>, List<Integer>, List<Integer>, List<Integer>> processInfos = createProcessInfo(selectedFile, priorityEnabled);
 
         // Extract arrival times, burst times, and priorities from the returned triple
-        List<Integer> arrivalTimes = processInfos.left();
-        List<Integer> burstTimes = processInfos.middle();
-        List<Integer> priorities = processInfos.right();
+        List<Integer> arrivalTimes = processInfos.first();
+        List<Integer> burstTimes = processInfos.second();
+        List<Integer> priorities = processInfos.third();
+        List<Integer> tickets = processInfos.fourth();
 
 
         for(int i = 0; i < arrivalTimes.size(); i++){
-            Process p = processFactory.createProcess(arrivalTimes.get(i), burstTimes.get(i), priorities.get(i));
+            Process p = processFactory.createProcess(arrivalTimes.get(i), burstTimes.get(i), priorities.get(i), tickets.get(i));
             processList.add(p);
             cpuScheduler.addProcess(p);
         }
-
 
     }
 

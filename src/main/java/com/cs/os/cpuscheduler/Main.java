@@ -48,7 +48,7 @@ public class Main {
 
         List<Process> processes = new ArrayList<>();
         for (int i = 1; i <= arrivalTimes.size(); i++) {
-            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1), priorities.get(i-1));
+            Process process = new Process(i, arrivalTimes.get(i-1), burstTimes.get(i-1), priorities.get(i-1), 0);
             processes.add(process);
         }
 

@@ -26,11 +26,11 @@ public class PrioritySchedulingPreemptiveTest  extends BaseSchedulerTest {
         return Stream.of(
                 new Object[]{ // Test case 1
                         Arrays.asList(
-                                new Process(1, 0, 4, 1),
-                                new Process(2, 0, 3, 2),
-                                new Process(3, 6, 7, 1),
-                                new Process(4, 11, 4, 3),
-                                new Process(5, 12, 2, 2)
+                                new Process(1, 0, 4, 1, 0),
+                                new Process(2, 0, 3, 2, 0),
+                                new Process(3, 6, 7, 1, 0),
+                                new Process(4, 11, 4, 3, 0),
+                                new Process(5, 12, 2, 2, 0)
                         ),
                         Arrays.asList(
                                 Arrays.asList(1, 0, 4, 4, 4, 0),
@@ -44,11 +44,11 @@ public class PrioritySchedulingPreemptiveTest  extends BaseSchedulerTest {
                 },
                 new Object[]{ // Test case 2
                         Arrays.asList(
-                                new Process(1, 1, 10, 3),
-                                new Process(2, 4, 15, 2),
-                                new Process(3, 6, 2, 1),
-                                new Process(4, 2, 20, 1),
-                                new Process(5, 100, 2, 3)
+                                new Process(1, 1, 10, 3, 0),
+                                new Process(2, 4, 15, 2, 0),
+                                new Process(3, 6, 2, 1, 0),
+                                new Process(4, 2, 20, 1, 0),
+                                new Process(5, 100, 2, 3, 0)
                         ),
                         Arrays.asList(
                                 Arrays.asList(1, 1, 10, 48, 47, 37),
@@ -62,10 +62,10 @@ public class PrioritySchedulingPreemptiveTest  extends BaseSchedulerTest {
                 },
                 new Object[]{ // Test case 3
                         Arrays.asList(
-                                new Process(1, 0, 4, 2),
-                                new Process(2, 1, 5, 1),
-                                new Process(3, 2, 6, 2),
-                                new Process(4, 3, 1, 1)
+                                new Process(1, 0, 4, 2, 0),
+                                new Process(2, 1, 5, 1, 0),
+                                new Process(3, 2, 6, 2, 0),
+                                new Process(4, 3, 1, 1, 0)
                         ),
                         Arrays.asList(
                                 Arrays.asList(1, 0, 4, 10, 10, 6),

@@ -13,12 +13,13 @@ public class Process {
 
 
     // Constructor
-    public Process(int processID, int arrivalTime, int burstTime, int priority) {
+    public Process(int processID, int arrivalTime, int burstTime, int priority, int tickets) {
         this.processID = processID;
         this.burstTime = burstTime;
         this.arrivalTime = arrivalTime;
         this.lastIdle = arrivalTime;
         this.priority = priority;
+        this.tickets = tickets;
     }
     public Process(int processID, int arrivalTime, int burstTime) {
         this.processID = processID;

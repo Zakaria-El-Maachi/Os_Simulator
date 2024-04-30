@@ -57,7 +57,7 @@
                                  <!-- Preemptive Choice -->
                                  <HBox spacing="10" alignment="CENTER_LEFT">
                                     <Label styleClass="input-label" text="Preemptive" />
-                                    <ChoiceBox fx:id="preemptiveChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
+                                    <ChoiceBox fx:id="preemptiveChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" value="Non-Preemptive">
                                        <items>
                                           <FXCollections fx:factory="observableArrayList">
                                              <String fx:value="Preemptive" />
@@ -68,22 +68,22 @@
                                  </HBox>
 
                                  <!-- Aging Choice -->
-                                 <HBox spacing="10" alignment="CENTER_LEFT">
-                                    <Label styleClass="input-label" text="Aging" />
-                                    <ChoiceBox fx:id="agingChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">
-                                       <items>
-                                          <FXCollections fx:factory="observableArrayList">
-                                             <String fx:value="With Aging" />
-                                             <String fx:value="Without Aging" />
-                                          </FXCollections>
-                                       </items>
-                                    </ChoiceBox>
-                                 </HBox>
+<!--                                 <HBox spacing="10" alignment="CENTER_LEFT">-->
+<!--                                    <Label styleClass="input-label" text="Aging" />-->
+<!--                                    <ChoiceBox fx:id="agingChoice" styleClass="choice-box" HBox.hgrow="ALWAYS">-->
+<!--                                       <items>-->
+<!--                                          <FXCollections fx:factory="observableArrayList">-->
+<!--                                             <String fx:value="With Aging" />-->
+<!--                                             <String fx:value="Without Aging" />-->
+<!--                                          </FXCollections>-->
+<!--                                       </items>-->
+<!--                                    </ChoiceBox>-->
+<!--                                 </HBox>-->
 
                                  <!-- Round Robin Choice -->
                                  <HBox spacing="10" alignment="CENTER_LEFT">
                                     <Label styleClass="input-label" text="Strategy" />
-                                    <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange">
+                                    <ChoiceBox fx:id="roundRobinChoice" styleClass="choice-box" HBox.hgrow="ALWAYS" onAction="#onPriorityRRChoiceChange" value="With First Come, First Served">
                                        <items>
                                           <FXCollections fx:factory="observableArrayList">
                                              <String fx:value="With First Come, First Served" />
@@ -104,7 +104,7 @@
 
 
                         <!-- Approach Selection -->
-                        <ChoiceBox fx:id="approachChoice" styleClass="choice-box" VBox.vgrow="NEVER" onAction="#onApproachChoiceChange">
+                        <ChoiceBox fx:id="approachChoice" styleClass="choice-box" VBox.vgrow="NEVER" onAction="#onApproachChoiceChange" value="Normal Input">
                            <items>
                               <FXCollections fx:factory="observableArrayList">
                                  <String fx:value="Normal Input" />
@@ -161,7 +161,7 @@
                         <VBox styleClass="pane" VBox.vgrow="ALWAYS" spacing="10">
                            <children>
                               <Label styleClass="title" text="Outputs" />
-                              <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box">
+                              <ChoiceBox fx:id="outputChoiceBox" styleClass="choice-box" value="Table View">
                                  <items>
                                     <FXCollections fx:factory="observableArrayList">
                                        <String fx:value="Table View" />
@@ -210,17 +210,7 @@
                         <Canvas fx:id="ganttCanvas" styleClass="gantt-canvas" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
 
                         <!-- Charts View Section -->
-                        <VBox fx:id="chartsView" styleClass="pane" VBox.vgrow="ALWAYS" spacing="10" visible="false">
-                           <children>
-                              <BarChart fx:id="histogramChart" VBox.vgrow="ALWAYS">
-                                 <xAxis>
-                                    <CategoryAxis fx:id="xAxis" label="Category" />
-                                 </xAxis>
-                                 <yAxis>
-                                    <NumberAxis fx:id="yAxis" label="Value" />
-                                 </yAxis>
-                              </BarChart>
-                           </children>
+                        <VBox fx:id="chartsView" styleClass="pane" VBox.vgrow="ALWAYS" visible="false">
                         </VBox>
 
                         <!-- Video Simulation  -->

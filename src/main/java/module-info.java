@@ -4,6 +4,8 @@ module com.cs.os.cpuscheduler {
 
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
+    requires jfreechart;
+    requires javafx.swing;
 
     opens com.cs.os.cpuscheduler to javafx.fxml;
     exports com.cs.os.cpuscheduler;
