@@ -44,7 +44,7 @@ public class SRTFTest extends BaseSchedulerTest {
                         3.2,
                         1
                 },
-                new Object[]{ // Test case 1
+                new Object[]{ // Test case 2
                         Arrays.asList(
                                 new Process(1, 17, 3),
                                 new Process(2, 12, 12),
@@ -53,11 +53,11 @@ public class SRTFTest extends BaseSchedulerTest {
                                 new Process(5, 12, 17)
                         ),
                         Arrays.asList(
-                                Arrays.asList(1, 17, 3, 21, 4, 1),
-                                Arrays.asList(2, 12, 12, 33, 21, 9),
                                 Arrays.asList(3, 3, 20, 48, 45, 25),
                                 Arrays.asList(4, 8, 10, 18, 10, 0),
-                                Arrays.asList(5, 12, 17, 65, 53, 36)
+                                Arrays.asList(2, 12, 12, 33, 21, 9),
+                                Arrays.asList(5, 12, 17, 65, 53, 36),
+                                Arrays.asList(1, 17, 3, 21, 4, 1)
                         ),
                         26.6,
                         14.2,

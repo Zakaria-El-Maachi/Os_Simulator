@@ -41,7 +41,7 @@ class HRRNTest extends BaseSchedulerTest {
                         8.0,
                         4.0
                 },
-                new Object[]{ // Test case 1
+                new Object[]{ // Test case 2
                         Arrays.asList(
                                 new Process(1, 1, 3),
                                 new Process(2, 3, 6),

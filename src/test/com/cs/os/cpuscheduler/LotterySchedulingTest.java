@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LotterySchedulerTest extends BaseSchedulerTest {
+class LotterySchedulingTest extends BaseSchedulerTest {
 
     @Override
     CPUScheduler createScheduler() {

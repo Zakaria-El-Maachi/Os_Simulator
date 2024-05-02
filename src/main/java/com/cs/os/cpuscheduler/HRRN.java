@@ -6,63 +6,50 @@ import java.util.Comparator;
 import java.util.List;
 import static java.lang.Math.max;
 
-public class HRRN implements SchedulingAlgorithm {
-    private List<Process> pq = new ArrayList<>();
-    private List<Process> processQueue;
-    private int numberOfProcesses;
-    private int threshold;
-    private int objectiveTime;
-    private int pid;
+public class HRRN extends AlgorithmTemplate {
 
-    public HRRN () {
-        this.threshold = -1;
-        this.objectiveTime = 0;
-        this.pid = 0;
-        this.numberOfProcesses = 0;
-    }
+    private List<Process> pq = new ArrayList<>();
+
+    public HRRN() { super(); }
 
     @Override
-    public Pair<Process, Integer> schedule() {
-        if (processQueue.isEmpty()) {
-            return null;
-        }
-
+    public void checkIfReadyQueueIsEmpty() {
         if (pq.isEmpty() && pid < numberOfProcesses) {
             pq.add(processQueue.get(pid));
             objectiveTime = processQueue.get(pid).getArrivalTime();
             pid++;
         }
+    }
 
+    @Override
+    public Pair<Process, Integer> updateTimes() {
         pq.sort(Comparator.comparingDouble(this::getResponseRatio));
         Process process = pq.getLast();
         pq.removeLast();
-
         int executionTime = process.getBurstTime();
-
         objectiveTime = max(objectiveTime, process.getArrivalTime()) + executionTime;
         threshold = objectiveTime;
-
-        for (int i = pid; i < numberOfProcesses; i++) {
-            if (processQueue.get(i).getArrivalTime() <= threshold) {
-                pq.add(processQueue.get(i));
-                pid++;
-            } else {
-                pid = i;
-                break;
-            }
-        }
 
         return new Pair<>(process, executionTime);
     }
 
     @Override
-    public void setUpAlgorithm(List<Process> processQueue) {
-        processQueue.sort(Comparator.comparingInt(Process::getArrivalTime));
+    public void addToReadyQueue(int t) { pq.add(processQueue.get(t)); }
 
-        System.out.println("Processes have been sorted by arrival time.");
+    @Override
+    public Pair<Process, Integer> finalStep(Process process, Integer executionTime) { return new Pair<>(process, executionTime); }
 
-        this.processQueue = processQueue;
-        this.numberOfProcesses = processQueue.size();
+    @Override
+    protected int getSecondaryCriteria(Process process) {
+        return 0;
+    }
+
+    @Override
+    protected int compareProcesses(Process p1, Process p2) { return 0; }
+
+    @Override
+    protected int compareProcessesWithTimestamp(Pair<Process, Integer> p1, Pair<Process, Integer> p2) {
+        return 0;
     }
 
     private double getResponseRatio(Process p) {

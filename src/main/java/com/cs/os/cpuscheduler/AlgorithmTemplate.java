@@ -18,6 +18,8 @@ abstract class AlgorithmTemplate implements SchedulingAlgorithm {
     protected int timeQuantum; // Time quantum for round-robin scheduling
     protected int lastTimestamp; // Last timestamp recorded
     protected PriorityQueue<Pair<Process, Integer>> pqWithTimestamp; // Priority queue for processes with timestamps
+    protected List<Process> ticketQueue;
+    protected int totalTickets;
 
     // Default constructor
     public AlgorithmTemplate() {
@@ -39,6 +41,7 @@ abstract class AlgorithmTemplate implements SchedulingAlgorithm {
         this.readyQueue = new LinkedList<>();
         this.timeQuantum = tq;
         this.lastTimestamp = 0;
+        this.ticketQueue = new ArrayList<>();
     }
 
     // Method to schedule processes based on specific algorithm logic
