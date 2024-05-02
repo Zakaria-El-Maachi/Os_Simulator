@@ -59,7 +59,7 @@ public class HRRN implements SchedulingAlgorithm {
     public void setUpAlgorithm(List<Process> processQueue) {
         processQueue.sort(Comparator.comparingInt(Process::getArrivalTime));
 
-        System.out.println("Processes have been sorted by arrival time, then by priority.");
+        System.out.println("Processes have been sorted by arrival time.");
 
         this.processQueue = processQueue;
         this.numberOfProcesses = processQueue.size();

@@ -236,8 +236,8 @@ public class Controller {
         // Create a TaskSeriesCollection to hold the data for the Gantt chart
         TaskSeriesCollection collection = new TaskSeriesCollection();
 
-        // Create a TaskSeries for each process
-        TaskSeries taskSeries = new TaskSeries("Processes");
+        // Map to keep track of the TaskSeries for each process
+        Map<String, TaskSeries> processTaskSeriesMap = new HashMap<>();
 
         // Initialize the current time to start drawing from zero
         int currentTime = 0;
@@ -252,8 +252,19 @@ public class Controller {
                 continue;
             }
 
+            String processName = process.getProcessName();
+
+            // Get or create a TaskSeries for the current process
+            TaskSeries taskSeries = processTaskSeriesMap.get(processName);
+            if (taskSeries == null) {
+                taskSeries = new TaskSeries(processName);
+                processTaskSeriesMap.put(processName, taskSeries);
+            }
+
             // Create a Task for the process execution
-            Task task = new Task(process.getProcessName(), new Date(currentTime * 1000L), new Date((currentTime + executionTime) * 1000L));
+            Date startDate = new Date(currentTime * 1000L);
+            Date endDate = new Date((currentTime + executionTime) * 1000L);
+            Task task = new Task(processName, startDate, endDate);
 
             // Add the task to the task series
             taskSeries.add(task);
@@ -262,8 +273,10 @@ public class Controller {
             currentTime += executionTime;
         }
 
-        // Add the task series to the collection
-        collection.add(taskSeries);
+        // Add all task series to the collection
+        for (TaskSeries taskSeries : processTaskSeriesMap.values()) {
+            collection.add(taskSeries);
+        }
 
         // Create the Gantt chart using the collection
         JFreeChart ganttChart = ChartFactory.createGanttChart(
@@ -297,6 +310,7 @@ public class Controller {
         // Add the SwingNode to the HBox
         chartsView.getChildren().add(swingNode);
     }
+
 
     // Function to draw the execution timeline with animation
     private void drawExecutionTimeline(List<Process> processQueue, List<Pair<Process, Integer>> executionTimeline) {

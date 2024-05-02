@@ -1,4 +1,3 @@
-/*
 package com.cs.os.cpuscheduler;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,10 +8,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public class HRRNTest extends BaseSchedulerTest {
+class HRRNTest extends BaseSchedulerTest {
     @Override
     CPUScheduler createScheduler() {
-        return new CPUScheduler(new SJF());
+        return new CPUScheduler(new HRRN());
     }
 
     @ParameterizedTest
@@ -26,6 +25,24 @@ public class HRRNTest extends BaseSchedulerTest {
         return Stream.of(
                 new Object[]{ // Test case 1
                         Arrays.asList(
+                                new Process(1, 0, 3),
+                                new Process(2, 2, 6),
+                                new Process(3, 4, 4),
+                                new Process(4, 6, 5),
+                                new Process(5, 8, 2)
+                        ),
+                        Arrays.asList(
+                                Arrays.asList(1, 0, 3, 3, 3, 0),
+                                Arrays.asList(2, 2, 6, 9, 7, 1),
+                                Arrays.asList(3, 4, 4, 13, 9, 5),
+                                Arrays.asList(4, 6, 5, 20, 14, 9),
+                                Arrays.asList(5, 8, 2, 15, 7, 5)
+                        ),
+                        8.0,
+                        4.0
+                },
+                new Object[]{ // Test case 1
+                        Arrays.asList(
                                 new Process(1, 1, 3),
                                 new Process(2, 3, 6),
                                 new Process(3, 5, 8),
@@ -35,13 +52,13 @@ public class HRRNTest extends BaseSchedulerTest {
                         Arrays.asList(
                                 Arrays.asList(1, 1, 3, 4, 3, 0),
                                 Arrays.asList(2, 3, 6, 10, 7, 1),
-                                Arrays.asList(3, 5, 8, 14, 24, 21),
-                                Arrays.asList(4, 4, 2, 24, 20, 18),
-                                Arrays.asList(5, 9, 1, 22, 13, 12)
+                                Arrays.asList(3, 5, 8, 27, 22, 14),
+                                Arrays.asList(4, 7, 4, 14, 7, 3),
+                                Arrays.asList(5, 8, 5, 19, 11, 6)
                         ),
-                        22.4,
-                        15.2
+                        10.0,
+                        4.8
                 }
         );
     }
-}*/
+}

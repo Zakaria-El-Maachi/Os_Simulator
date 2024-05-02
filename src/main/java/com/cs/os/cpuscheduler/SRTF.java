@@ -67,7 +67,7 @@ public class SRTF implements SchedulingAlgorithm{
     public void setUpAlgorithm(List<Process> processQueue) {
         processQueue.sort(Comparator.comparingInt(Process::getArrivalTime).thenComparingInt(Process::getBurstTime));
 
-        System.out.println("Processes have been sorted by arrival time, then by priority.");
+        System.out.println("Processes have been sorted by arrival time, then by burst time.");
 
         this.processQueue = processQueue;
         this.numberOfProcesses = processQueue.size();

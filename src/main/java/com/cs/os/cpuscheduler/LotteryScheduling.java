@@ -30,6 +30,16 @@ public class LotteryScheduling implements SchedulingAlgorithm {
             pid++;
         }
 
+        for (int i = pid; i < processQueue.size(); i++) {
+            if (processQueue.get(i).getArrivalTime() <= objectiveTime) {
+                ticketQueue.add(processQueue.get(i));
+                pid++;
+            } else {
+                pid = i;
+                break;
+            }
+        }
+
         // Calculate the total number of tickets
         calculateTotalTickets();
 

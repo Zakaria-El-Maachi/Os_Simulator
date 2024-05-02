@@ -68,6 +68,8 @@ class CPUScheduler {
 
         int lastRunningProcessID = 0;
 
+        osTime = 0;
+
         while (toBeExecuted > 0) {
             Pair<Process, Integer> nextProcessTime = schedulingAlgorithm.schedule();
 
@@ -75,7 +77,7 @@ class CPUScheduler {
             int execTime = nextProcessTime.getValue();
 
             if(nextProcess.getLastIdle() > osTime){
-                executionTimeline.add(new Pair<>(null, nextProcess.getArrivalTime() - osTime));
+                executionTimeline.add(new Pair<>(null, nextProcess.getLastIdle() - osTime));
                 osTime = nextProcess.getLastIdle();
             }
 
