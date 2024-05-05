@@ -86,7 +86,7 @@ Before running the CPU Scheduler Simulator, ensure you have JDK (Java Developmen
 
 3. Once the build process is complete, navigate to the `target` directory.
 4. Locate the JAR file named `CPUScheduler-1.0-SNAPSHOT-shaded.jar`.
-5. Execute the JAR file by running the following command:
+5. Execute the JAR file by clicking on it twice or by running the following command:
 
     ```
     java -jar CPUScheduler-1.0-SNAPSHOT-shaded.jar

@@ -2,11 +2,10 @@ module com.cs.os.cpuscheduler {
     requires javafx.controls;
     requires javafx.fxml;
 
-    requires com.dlsc.formsfx;
-    requires org.kordamp.bootstrapfx.core;
-    requires jfreechart;
-    requires javafx.swing;
-
-    opens com.cs.os.cpuscheduler to javafx.fxml;
-    exports com.cs.os.cpuscheduler;
+    opens com.os.cpuscheduler to javafx.fxml;
+    exports com.os.cpuscheduler;
+    exports com.os.cpuscheduler.algorithms;
+    opens com.os.cpuscheduler.algorithms to javafx.fxml;
+    exports com.os.cpuscheduler.gui;
+    opens com.os.cpuscheduler.gui to javafx.fxml;
 }

@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.cs.os.cpuscheduler.GUIApplication
+Main-Class: com.os.cpuscheduler.gui.GUIApplication
 
