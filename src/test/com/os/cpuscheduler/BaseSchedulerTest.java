@@ -1,5 +1,7 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
+import com.os.cpuscheduler.CPUScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;

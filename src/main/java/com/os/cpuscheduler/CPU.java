@@ -1,5 +1,7 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
+
 class CPU {
 
     private CpuState state = CpuState.Idle;

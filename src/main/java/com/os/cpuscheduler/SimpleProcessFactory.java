@@ -1,14 +1,15 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
+
 import java.util.Random;
 
 public class SimpleProcessFactory implements ProcessFactory{
-    private int biggestID; // To keep track of existing process IDs
+    private static int biggestID = 0; // To keep track of existing process IDs
     private final Random random;
 
     // Constructor
     public SimpleProcessFactory() {
-        this.biggestID = 0;
         this.random = new Random();
     }
 
@@ -49,7 +50,7 @@ public class SimpleProcessFactory implements ProcessFactory{
 
     @Override
     public void reset() {
-        this.biggestID = 0;
+        biggestID = 0;
     }
 
 }

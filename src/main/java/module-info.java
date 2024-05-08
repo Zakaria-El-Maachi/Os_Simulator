@@ -8,4 +8,6 @@ module com.cs.os.cpuscheduler {
     opens com.os.cpuscheduler.algorithms to javafx.fxml;
     exports com.os.cpuscheduler.gui;
     opens com.os.cpuscheduler.gui to javafx.fxml;
+    exports com.os;
+    opens com.os to javafx.fxml;
 }

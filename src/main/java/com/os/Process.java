@@ -1,16 +1,9 @@
-package com.os.cpuscheduler;
+package com.os;
 
 public class Process {
-    private final int processID;
-    private final int burstTime;
-    private final int arrivalTime;
-    private int lastIdle;
-    private int waitingTime = 0;
-    private int executionTime = 0;
-    private int priority = 0;
-
-    private int tickets = 0;
-
+    private final int processID, burstTime, arrivalTime;
+    private int lastIdle, waitingTime = 0, executionTime = 0, priority = 0, tickets = 0;
+    private final long size;
 
     // Constructor
     public Process(int processID, int arrivalTime, int burstTime, int priority, int tickets) {
@@ -20,12 +13,22 @@ public class Process {
         this.lastIdle = arrivalTime;
         this.priority = priority;
         this.tickets = tickets;
+        this.size = 0;
     }
     public Process(int processID, int arrivalTime, int burstTime) {
         this.processID = processID;
         this.burstTime = burstTime;
         this.arrivalTime = arrivalTime;
         this.lastIdle = arrivalTime;
+        this.size = 0;
+    }
+
+    public Process(int processID, int arrivalTime, int burstTime, long size) {
+        this.processID = processID;
+        this.burstTime = burstTime;
+        this.arrivalTime = arrivalTime;
+        this.lastIdle = arrivalTime;
+        this.size = size;
     }
 
     // Getters for the attributes
@@ -85,6 +88,9 @@ public class Process {
         return tickets;
     }
 
+    public long getSize() {
+        return size;
+    }
 
     // Converts an integer to its corresponding representation in the alphabet.
     public static String intToAlphabet(int num) {
@@ -120,6 +126,5 @@ public class Process {
                 "Waiting Time: " + waitingTime + "\n" +
                 "Execution Time: " + executionTime + "\n";
     }
-
 
 }

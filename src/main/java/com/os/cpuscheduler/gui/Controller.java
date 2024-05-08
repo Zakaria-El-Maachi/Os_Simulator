@@ -1,10 +1,10 @@
 package com.os.cpuscheduler.gui;
 
 import com.os.cpuscheduler.CPUScheduler;
-import com.os.cpuscheduler.Process;
+import com.os.Process;
+import com.os.cpuscheduler.algorithms.*;
 import com.os.cpuscheduler.ProcessFactory;
 import com.os.cpuscheduler.SimpleProcessFactory;
-import com.os.cpuscheduler.algorithms.*;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -30,7 +30,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -39,7 +38,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Flow;
 
 import javafx.application.Platform;
 import javafx.animation.KeyFrame;

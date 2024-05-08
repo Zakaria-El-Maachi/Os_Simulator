@@ -1,6 +1,6 @@
 package com.os.cpuscheduler.algorithms;
 
-import com.os.cpuscheduler.Process;
+import com.os.Process;
 import javafx.util.Pair;
 import static java.lang.Integer.max;
 

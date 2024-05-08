@@ -1,5 +1,6 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
 import com.os.cpuscheduler.algorithms.LotteryScheduling;
 import org.junit.jupiter.api.Test;
 

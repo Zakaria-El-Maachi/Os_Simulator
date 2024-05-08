@@ -1,5 +1,7 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
+
 public interface ProcessFactory {
     // Method to create a process with defined parameters
     Process createProcess(int arrivalTime, int burstTime, int priority, int tickets);

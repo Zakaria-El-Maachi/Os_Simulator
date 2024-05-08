@@ -1,5 +1,6 @@
 package com.os.cpuscheduler;
 
+import com.os.Process;
 import com.os.cpuscheduler.algorithms.FCFS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
