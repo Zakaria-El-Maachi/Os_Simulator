@@ -21,7 +21,7 @@ public abstract class MemoryManagementStrategy {
         this.unit = unit;
     }
 
-    protected void resetIterator() {
+    public void resetIterator() {
         this.segmentIterator = mapping.listIterator();
     }
 

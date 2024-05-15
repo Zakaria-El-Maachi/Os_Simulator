@@ -7,17 +7,20 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class MemoryManagementUnit implements MemoryManager{
-    private long size, unit, numProcesses;
-    private final LinkedList<Segment> mapping;
-    private MemoryManagementStrategy strategy;
+    private long size, unit, numProcesses, allocatedMemory;
 
+    private final LinkedList<Segment> mapping;
+
+    private MemoryManagementStrategy strategy;
     private final Exception ProcessNotFound = new Exception("No process found with that ID."),
-                            AllocationFail = new Exception("Allocation failed. Not enough memory."),
-                            AddressException = new Exception("Address longer than the limit of the process.");
+    AllocationFail = new Exception("Allocation failed. Not enough memory."),
+    AddressException = new Exception("Address longer than the limit of the process.");
+
 
     public MemoryManagementUnit(long size, long unit) {
         this.size = size;
         this.unit = unit;
+        this.allocatedMemory = 0;
         this.numProcesses = 0;
         this.mapping = new LinkedList<>();
         this.mapping.add(new Segment(0, size/unit));
@@ -30,8 +33,19 @@ public class MemoryManagementUnit implements MemoryManager{
         this.strategy.setUnit(unit);
     }
 
-    public long getEffectiveSize() {
-        return size - size%unit;
+    @Override
+    public void setParams(long size, long unit) {
+        this.size = size;
+        this.unit = unit;
+        this.mapping.clear();
+        this.allocatedMemory = 0;
+        this.numProcesses = 0;
+        this.mapping.add(new Segment(0, size/unit));
+        if(this.strategy != null) {
+            this.strategy.setMapping(this.mapping);
+            this.strategy.setUnit(unit);
+            this.strategy.resetIterator();
+        }
     }
 
     @Override
@@ -45,6 +59,7 @@ public class MemoryManagementUnit implements MemoryManager{
         Segment segment = iterator.previous();
         long base = segment.getBase();
         long requiredUnits = (process.getSize() + unit - 1) / unit;
+        allocatedMemory += requiredUnits * unit;
 
         // Remove the current segment since it will be allocated
         iterator.remove();
@@ -87,6 +102,7 @@ public class MemoryManagementUnit implements MemoryManager{
         }
 
         segment = iterator.previous();
+        allocatedMemory -= segment.getLimit() * unit;
         holeUnits += segment.getLimit();
         base = Math.min(base, segment.getBase());
         iterator.remove();
@@ -156,9 +172,24 @@ public class MemoryManagementUnit implements MemoryManager{
     }
 
 
+    @Override
+    public long getSize() {
+        return size;
+    }
 
-    public long getNumProcesses() {
-        return numProcesses;
+    @Override
+    public long getUnit() {
+        return unit;
+    }
+
+    @Override
+    public LinkedList<Segment> getMapping() {
+        return mapping;
+    }
+
+    @Override
+    public long getAllocatedMemory() {
+        return allocatedMemory;
     }
 
 }
