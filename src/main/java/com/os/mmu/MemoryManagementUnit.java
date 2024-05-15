@@ -128,9 +128,9 @@ public class MemoryManagementUnit implements MemoryManager{
         if(it == null)
             throw ProcessNotFound;
         Segment allocated = it.previous();
-        if(address > allocated.getLimit())
+        if(address > allocated.getLimit() * unit)
             throw AddressException;
-        return allocated.getBase() + address;
+        return allocated.getBase() * unit + address;
     }
 
     @Override

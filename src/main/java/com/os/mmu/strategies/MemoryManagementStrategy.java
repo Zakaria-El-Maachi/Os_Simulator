@@ -39,6 +39,12 @@ public abstract class MemoryManagementStrategy {
         return null;
     }
 
+    // Returns the leftover in KB unit
+    public long leftover(Process process, Segment s) {
+        return s.getLimit() * unit - process.getSize();
+    }
+
+    // Returns the leftover in allocation unit
     public long fitLeftover(Process process, Segment s) {
         return s.getLimit() - (process.getSize() + unit - 1) / unit;
     }

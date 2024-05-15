@@ -18,7 +18,7 @@ public class BestFit extends MemoryManagementStrategy{
 
             // Check if the current segment is unallocated and can accommodate the process
             if (!curSegment.isAllocated() && fits(process, curSegment)) {
-                long leftover = fitLeftover(process, curSegment);
+                long leftover = leftover(process, curSegment);
 
                 // If the leftover space is smaller than the previous minimum, update the best fit segment
                 if (leftover < minLeftover) {

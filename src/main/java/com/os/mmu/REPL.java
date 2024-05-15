@@ -29,7 +29,7 @@ public class REPL {
 
             // Check for exit command
             if (command.trim().equalsIgnoreCase("exit")) {
-                System.out.println("Exiting REPL.");
+                System.out.println("Exiting Program.");
                 break;
             }
 
