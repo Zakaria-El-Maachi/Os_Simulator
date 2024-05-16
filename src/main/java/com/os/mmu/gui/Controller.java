@@ -147,7 +147,7 @@ public class Controller {
                 Segment allocated = memoryManager.allocate(process);
                 if (allocated != null) {
                     processListView.getItems().add("Process ID: " + process.getProcessID() +
-                            ", Base: " + allocated.getBase() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
+                            ", Base: " + allocated.getBase() * memoryManager.getUnit() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
                     processes.add(process); // Add the process ID to the list
                     updateProcessComboBox();
                     updateMemoryVisualization();
@@ -167,13 +167,15 @@ public class Controller {
     @FXML
     public void generateRandomProcess() {
         Random random = new Random();
-        long requestedMemory = random.nextInt(100) + 1; // Random memory size between 1 and 100 KB
+        long requestedMemory = random.nextLong(memoryManager.getSize() - memoryManager.getAllocatedMemory()) + 1; // Random memory size between 1 and 100 KB
         Process process = processFactory.createProcess(requestedMemory);
         try {
             Segment allocated = memoryManager.allocate(process);
             if (allocated != null) {
                 processListView.getItems().add("Process ID: " + process.getProcessID() +
-                        ", Base: " + allocated.getBase() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
+                        ", Base: " + allocated.getBase() * memoryManager.getUnit() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
+                processes.add(process);
+                updateProcessComboBox();
                 updateMemoryVisualization();
             }
         } catch (Exception e) {
@@ -208,11 +210,11 @@ public class Controller {
                 segmentRectangle.setFill(segmentColor);
 
                 // Display process details
-                Text text = new Text(segment.getBase() * memoryUnit + "\n" +
+                Text text = new Text(segment.getBase() * memoryManager.getUnit() + "\n" +
                         "Process: " + segment.getProcess().getProcessName() + "\n" +
                         "Limit: " + segment.getLimit() * memoryManager.getUnit());
                 text.setX(x + 5);
-                text.setY(memoryPane.getHeight() / 2);
+                text.setY(memoryPane.getHeight() / 2 - 12);
                 memoryPane.getChildren().add(text);
             }
         }

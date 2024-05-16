@@ -1,13 +1,15 @@
 /* Styles for the anchor pane */
 .root {
-    -fx-background-color: #1f1f1f; /* Dark background color */
+    -fx-background-color: #f0f0f0;/* Light background color */
+    -fx-padding: 20;
 }
 
 /* Styles for the memory pane */
 #memoryPane {
-    -fx-background-color: #2e2e2e; /* Dark background color */
-    -fx-border-color: #1f1f1f; /* Darker border color */
-    -fx-border-radius: 10; /* Rounded corners */
+    -fx-background-color: #d3e3f8; /* Light blue background color */
+    -fx-border-color: #b0d5a6; /* Lighter green border color */
+    -fx-border-radius: 20; /* Rounded corners */
+    -fx-background-radius: 20;
 }
 
 /* Styles for the buttons */
@@ -17,66 +19,67 @@
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
     -fx-padding: 8 16; /* Padding */
-    -fx-background-radius: 5; /* Rounded corners */
+    -fx-background-radius: 20; /* Rounded corners */
 }
 
 /* Styles for the combo box */
-#strategyComboBox {
-    -fx-background-color: #333333; /* Dark background color */
-    -fx-text-fill: white; /* White text color */
+#processComboBox, #strategyComboBox {
+    -fx-background-color: #d3e3f8;
+    -fx-text-fill: #333333; /* Dark text color */
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
     -fx-padding: 5; /* Padding */
-    -fx-background-radius: 5; /* Rounded corners */
+    -fx-background-radius: 20; /* Rounded corners */
 }
 
 .combo-box .list-cell {
-    -fx-text-fill: white;
+    -fx-text-fill: black; /* Black text color */
 }
-
 
 /* Styles for the labels */
 .label {
-    -fx-text-fill: white; /* White text color */
+    -fx-text-fill: #333333; /* Dark text color */
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
 }
 
 /* Styles for the text fields */
 .text-field {
-    -fx-background-color: #333333; /* Dark background color */
-    -fx-text-fill: white; /* White text color */
+    -fx-background-color: #ffffff; /* White background color */
+    -fx-text-fill: #333333; /* Dark text color */
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
     -fx-padding: 5; /* Padding */
-    -fx-background-radius: 5; /* Rounded corners */
+    -fx-background-radius: 20; /* Rounded corners */
 }
 
 /* Styles for the list view */
-#processListView, #processComboBox {
-    -fx-background-color: #2e2e2e; /* Dark background color */
-    -fx-text-fill: white; /* White text color */
+#processListView {
+    -fx-background-color: #d3e3f8; /* Light blue background color */
+    -fx-text-fill: #333333; /* Dark text color */
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
-    -fx-background-radius: 5; /* Rounded corners */
 }
 
 .combo-box-popup {
-    -fx-background-color: #2e2e2e; /* Set your desired background color */
+    -fx-background-color: #d3e3f8; /* Light blue background color */
 }
 
 /* Styles for the pie chart */
 #memoryPieChart {
-    -fx-background-color: #2e2e2e; /* Dark background color */
+    -fx-background-color: #d3e3f8; /* Light blue background color */
     -fx-font-size: 14px; /* Font size */
     -fx-font-weight: bold; /* Bold font */
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
 }
 
 
 .parameter-box {
-    -fx-background-color: #245426; /* Set background color */
+    -fx-background-color: #b0d5a6; /* Set background color */
     -fx-padding: 10px; /* Add some padding */
     -fx-border-color: #cccccc; /* Add border color */
     -fx-border-width: 1px; /* Add border width */
-    -fx-border-radius: 5px; /* Add border radius for rounded corners */
+    -fx-border-radius: 20px; /* Add border radius for rounded corners */
+    -fx-background-radius: 20;
 }
