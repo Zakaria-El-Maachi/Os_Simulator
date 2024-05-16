@@ -1,5 +1,6 @@
 package com.os.mmu.gui;
 
+import com.os.cpuscheduler.gui.GUIApplication;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,7 +16,7 @@ public class MMUGUIApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(com.os.cpuscheduler.gui.MMUGUIApplication.class.getResource("/com/os/mmu/gui/MMU.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(GUIApplication.class.getResource("/com/os/mmu/gui/MMU.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 560);
 //        scene.getStylesheets().add(getClass().getResource("app.css").toExternalForm());
         stage.setTitle("Memory Management Unit Simulator");

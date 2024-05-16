@@ -87,16 +87,19 @@ public class CPUScheduler {
 
             maxExecutionTime = Integer.max(maxExecutionTime, execTime);
 
-            this.executionTimeline.add(nextProcessTime);
+            if (lastRunningProcessID != nextProcess.getProcessID()) {
+                contextSwitches++;
+                this.executionTimeline.add(nextProcessTime);
+            } else {
+                Pair<Process, Integer> prevProcessTime = this.executionTimeline.removeLast();
+                this.executionTimeline.add(new Pair<>(nextProcess, prevProcessTime.getValue() + execTime));
+            }
 
             int waitingTime = osTime - nextProcess.getLastIdle();
             nextProcess.addWaitingTime(waitingTime); // Add the waiting time to the process
 
 //            cpu.executeProcess(nextProcess, execTime); // Execute the process for the specified execTime
 
-            // Increment context switches if necessary
-            if (lastRunningProcessID != nextProcess.getProcessID())
-                contextSwitches++;
 
             lastRunningProcessID = nextProcess.getProcessID();
 
