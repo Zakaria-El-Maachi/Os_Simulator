@@ -63,8 +63,8 @@ public class REPL {
                     // Output the process ID and allocation details
                     System.out.printf("Process ID: %d, Base: %d, Limit: %d KB\n",
                             process.getProcessID(),
-                            allocated.getBase(),
-                            allocated.getLimit());
+                            allocated.getBase() * memoryManager.getUnit(),
+                            allocated.getLimit() * memoryManager.getUnit());
                     break;
 
                 case "dl":
