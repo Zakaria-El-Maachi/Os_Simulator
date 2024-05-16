@@ -21,7 +21,7 @@
             <children>
                 <HBox alignment="CENTER" spacing="10.0">
                     <!-- Memory parameters input -->
-                    <VBox spacing="10.0" alignment="CENTER" styleClass="parameter-box">
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" alignment="CENTER" styleClass="parameter-box">
                         <HBox spacing="10.0" alignment="CENTER_LEFT">
                             <Label text="Memory Size" />
                             <TextField fx:id="memorySizeInput" promptText="Enter Memory Size" />
@@ -32,24 +32,8 @@
                         </HBox>
                         <Button text="Update Memory Parameters" onAction="#updateMemorySettings" />
                     </VBox>
-                    <!-- Memory Conversion Box -->
-                    <VBox spacing="10.0" alignment="CENTER_LEFT" styleClass="parameter-box">
-                        <HBox spacing="10.0" alignment="CENTER_LEFT">
-                            <Label text="Choose Process" />
-                            <ComboBox fx:id="processComboBox" promptText="Select Process" />
-                        </HBox>
-                        <HBox spacing="10.0" alignment="CENTER_LEFT">
-                            <Label text="Logical Address" />
-                            <TextField fx:id="logicalAddressInput" promptText="Enter Logical Address" />
-                        </HBox>
-                        <HBox spacing="10.0" alignment="CENTER_LEFT">
-                            <Button text="Convert to Physical" onAction="#convertToPhysicalAddress" />
-                            <Label fx:id="physicalAddressLabel" />
-                        </HBox>
-                        <Button text="Deallocate Process" onAction="#deallocateProcess" />
-                    </VBox>
                     <!-- Strategy and Process Box -->
-                    <VBox spacing="10.0" HBox.hgrow="NEVER" alignment="CENTER_LEFT" styleClass="parameter-box">
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" styleClass="parameter-box">
                         <HBox spacing="10.0" alignment="CENTER_LEFT">
                             <Label text="Memory Management Unit" />
                             <ComboBox fx:id="strategyComboBox" promptText="Select Strategy" onAction="#onStrategySelected">
@@ -69,10 +53,26 @@
                         </HBox>
                         <Button text="Generate Random Process" onAction="#generateRandomProcess" />
                     </VBox>
+                    <!-- Memory Conversion Box -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" styleClass="parameter-box">
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Label text="Choose Process" />
+                            <ComboBox fx:id="processComboBox" promptText="Select Process" />
+                        </HBox>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Label text="Logical Address" />
+                            <TextField fx:id="logicalAddressInput" promptText="Enter Logical Address" />
+                        </HBox>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Button text="Convert to Physical" onAction="#convertToPhysicalAddress" />
+                            <Label fx:id="physicalAddressLabel" />
+                        </HBox>
+                        <Button text="Deallocate Process" onAction="#deallocateProcess" />
+                    </VBox>
                 </HBox>
                 <HBox fx:id="memoryVisual" HBox.hgrow="ALWAYS" alignment="CENTER">
                     <children>
-                        <Pane fx:id="memoryPane" minHeight="90">
+                        <Pane fx:id="memoryPane" minHeight="100">
                             <children>
                                 <!-- Rectangles representing memory segments will be added here dynamically -->
                             </children>
@@ -80,7 +80,7 @@
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER" spacing="20">
+                <HBox VBox.vgrow="ALWAYS" alignment="CENTER" spacing="20">
                     <ListView fx:id="processListView" prefHeight="250.0" prefWidth="600.0" />
                     <PieChart fx:id="memoryPieChart" prefHeight="250.0" prefWidth="600.0" />
                 </HBox>

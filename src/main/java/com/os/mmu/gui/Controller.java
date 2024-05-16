@@ -51,7 +51,6 @@ public class Controller {
     public void initialize() {
 
         memoryPane.prefWidthProperty().bind(memoryVisual.widthProperty());
-        memoryPane.setPrefHeight(50);
 
         processComboBox.setCellFactory(param -> new ListCell<Process>() {
             @Override
@@ -61,7 +60,7 @@ public class Controller {
                 if (empty || process == null) {
                     setText(null);
                 } else {
-                    setText("Process ID: " + process.getProcessID() + ", Size: " + process.getSize() + " KB");
+                    setText("Process Name: " + process.getProcessName() + ", Size: " + process.getSize() + " KB");
                 }
             }
         });
@@ -73,7 +72,7 @@ public class Controller {
                 if (process == null) {
                     return null;
                 } else {
-                    return "Process ID: " + process.getProcessID() + ", Size: " + process.getSize() + " KB";
+                    return "Process Name: " + process.getProcessName() + ", Size: " + process.getSize() + " KB";
                 }
             }
 
@@ -146,7 +145,7 @@ public class Controller {
                 Process process = processFactory.createProcess(requestedMemory);
                 Segment allocated = memoryManager.allocate(process);
                 if (allocated != null) {
-                    processListView.getItems().add("Process ID: " + process.getProcessID() +
+                    processListView.getItems().add("Process Name: " + process.getProcessName() +
                             ", Base: " + allocated.getBase() * memoryManager.getUnit() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
                     processes.add(process); // Add the process ID to the list
                     updateProcessComboBox();
@@ -172,7 +171,7 @@ public class Controller {
         try {
             Segment allocated = memoryManager.allocate(process);
             if (allocated != null) {
-                processListView.getItems().add("Process ID: " + process.getProcessID() +
+                processListView.getItems().add("Process Name: " + process.getProcessName() +
                         ", Base: " + allocated.getBase() * memoryManager.getUnit() + ", Limit: " + allocated.getLimit() * memoryManager.getUnit() + " KB");
                 processes.add(process);
                 updateProcessComboBox();
@@ -257,11 +256,11 @@ public class Controller {
         Process selectedProcess = processComboBox.getValue();
         if (selectedProcess != null) {
             try {
-                int processID = selectedProcess.getProcessID();
-                memoryManager.deallocate(processID);
-                processListView.getItems().removeIf(item -> item.contains("Process ID: " + processID));
+                String processName = selectedProcess.getProcessName();
+                memoryManager.deallocate(selectedProcess.getProcessID());
+                processListView.getItems().removeIf(item -> item.contains("Process Name: " + processName));
                 processComboBox.getItems().remove(selectedProcess);
-                processes.removeIf(process -> process.getProcessID() == processID);
+                processes.removeIf(process -> process.getProcessID() == selectedProcess.getProcessID());
                 updateMemoryVisualization();
             } catch (Exception e) {
                 showError(e.getMessage());
